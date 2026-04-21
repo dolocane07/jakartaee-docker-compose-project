@@ -27,6 +27,7 @@ public class EstadisticasServlet extends HttpServlet {
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
+    @SuppressWarnings({"CallToPrintStackTrace", "UseSpecificCatch"})
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
 
