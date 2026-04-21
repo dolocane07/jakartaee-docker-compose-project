@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ejemplo.util.ErrorUtil;
+
 public class StatsDAO {
 
     public List<TagCount> topRelationships(int limit) {
@@ -87,7 +89,7 @@ public class StatsDAO {
             rs.next();
             return rs.getInt("media");
         } catch (Exception e) {
-            throw new RuntimeException("Error al calcular la media de palabras", e);
+            throw new RuntimeException("Error al calcular la media de palabras: " + ErrorUtil.getRootCauseMessage(e), e);
         }
     }
 
@@ -105,7 +107,7 @@ public class StatsDAO {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error al consultar estadisticas", e);
+            throw new RuntimeException("Error al consultar estadisticas: " + ErrorUtil.getRootCauseMessage(e), e);
         }
 
         return lista;
@@ -122,7 +124,7 @@ public class StatsDAO {
                 mapa.put(rs.getString(columnaClave), rs.getInt("total"));
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error al consultar estadisticas", e);
+            throw new RuntimeException("Error al consultar estadisticas: " + ErrorUtil.getRootCauseMessage(e), e);
         }
 
         return mapa;

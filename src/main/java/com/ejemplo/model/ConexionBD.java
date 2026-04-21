@@ -24,6 +24,17 @@ public class ConexionBD {
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, DB_USER, DB_PASSWORD);
+        try {
+            return DriverManager.getConnection(URL, DB_USER, DB_PASSWORD);
+        } catch (SQLException e) {
+            String sugerencia = "mysql".equals(DB_HOST)
+                    ? " Configura DB_HOST, DB_PORT, DB_NAME, DB_USER y DB_PASSWORD en Render para una base de datos MySQL accesible."
+                    : "";
+
+            throw new SQLException(
+                    "No se pudo conectar a MySQL en " + DB_HOST + ":" + DB_PORT + "/" + DB_NAME + "." + sugerencia
+                            + " Motivo original: " + e.getMessage(),
+                    e);
+        }
     }
 }

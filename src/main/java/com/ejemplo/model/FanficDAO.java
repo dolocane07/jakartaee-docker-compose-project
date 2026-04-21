@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ejemplo.util.ErrorUtil;
+
 public class FanficDAO {
 
     public boolean existePorUrl(String ao3Url) {
@@ -22,7 +24,7 @@ public class FanficDAO {
                 return rs.next();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error al comprobar si el fanfic ya existe", e);
+            throw new RuntimeException("Error al comprobar si el fanfic ya existe: " + ErrorUtil.getRootCauseMessage(e), e);
         }
     }
 
@@ -62,7 +64,7 @@ public class FanficDAO {
             conexion.commit();
             return fanfic.getId();
         } catch (Exception e) {
-            throw new RuntimeException("Error al guardar el fanfic", e);
+            throw new RuntimeException("Error al guardar el fanfic: " + ErrorUtil.getRootCauseMessage(e), e);
         }
     }
 
@@ -97,7 +99,7 @@ public class FanficDAO {
                 fanfics.add(fanfic);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error al listar fanfics", e);
+            throw new RuntimeException("Error al listar fanfics: " + ErrorUtil.getRootCauseMessage(e), e);
         }
 
         return fanfics;
@@ -113,7 +115,7 @@ public class FanficDAO {
             rs.next();
             return rs.getInt(1);
         } catch (Exception e) {
-            throw new RuntimeException("Error al contar fanfics", e);
+            throw new RuntimeException("Error al contar fanfics: " + ErrorUtil.getRootCauseMessage(e), e);
         }
     }
 

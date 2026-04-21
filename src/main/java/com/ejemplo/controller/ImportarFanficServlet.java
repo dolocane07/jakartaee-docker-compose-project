@@ -10,6 +10,8 @@ import java.util.Map;
 import com.ejemplo.model.Fanfic;
 import com.ejemplo.model.FanficDAO;
 import com.ejemplo.service.Ao3ScraperService;
+import com.ejemplo.service.SchemaInitializer;
+import com.ejemplo.util.ErrorUtil;
 import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
@@ -24,6 +26,7 @@ public class ImportarFanficServlet extends HttpServlet {
     private final Gson gson = new Gson();
     private final FanficDAO fanficDAO = new FanficDAO();
     private final Ao3ScraperService ao3ScraperService = new Ao3ScraperService();
+    private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -32,6 +35,8 @@ public class ImportarFanficServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         try {
+            schemaInitializer.ensureSchema();
+
             StringBuilder jsonRecibido = new StringBuilder();
             BufferedReader reader = request.getReader();
             String linea;
@@ -70,12 +75,13 @@ public class ImportarFanficServlet extends HttpServlet {
             error.put("mensaje", e.getMessage());
             response.getWriter().write(gson.toJson(error));
         } catch (Exception e) {
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
             Map<String, Object> error = new HashMap<>();
             error.put("ok", false);
             error.put("mensaje", "No se pudo importar el fanfic");
-            error.put("detalle", e.getMessage());
+            error.put("detalle", ErrorUtil.getRootCauseMessage(e));
             response.getWriter().write(gson.toJson(error));
         }
     }
