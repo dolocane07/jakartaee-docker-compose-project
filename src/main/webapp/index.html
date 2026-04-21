@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de contactos</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <main class="contenedor">
+        <section class="tarjeta">
+            <h1>Buscador de contactos</h1>
+            <p class="subtitulo">Aplicación Web con Jakarta EE, Fetch, JSON y MySQL</p>
+
+            <form id="formBuscador" class="buscador">
+                <input type="text" id="textoBusqueda" name="textoBusqueda" placeholder="Escribe un nombre..." required>
+                <button type="submit">Buscar</button>
+            </form>
+
+            <div id="estado" class="estado"></div>
+            <div id="resultados" class="resultados"></div>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
+
