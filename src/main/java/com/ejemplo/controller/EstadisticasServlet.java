@@ -8,6 +8,7 @@ import com.ejemplo.model.FanficDAO;
 import com.ejemplo.model.StatsDAO;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
+import com.ejemplo.util.SessionUtil;
 import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
@@ -27,14 +28,21 @@ public class EstadisticasServlet extends HttpServlet {
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
-    @SuppressWarnings({"CallToPrintStackTrace", "UseSpecificCatch"})
+    @SuppressWarnings("UseSpecificCatch")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
+
+        Integer userId = SessionUtil.getUserId(request);
+        if (userId == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(gson.toJson(crearError("Necesitas iniciar sesion para ver tus estadisticas")));
+            return;
+        }
 
         try {
             schemaInitializer.ensureSchema();
 
-            int totalFanfics = fanficDAO.contarFanfics();
+            int totalFanfics = fanficDAO.contarFanfics(userId);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
@@ -48,25 +56,28 @@ public class EstadisticasServlet extends HttpServlet {
             }
 
             respuesta.put("enabled", true);
-            respuesta.put("topRelationships", statsDAO.topRelationships(5));
-            respuesta.put("topFandoms", statsDAO.topFandoms(5));
-            respuesta.put("topWarnings", statsDAO.topWarnings(5));
-            respuesta.put("ao3Ratings", statsDAO.ratingAo3Breakdown());
-            respuesta.put("userStars", statsDAO.estrellasBreakdown());
-            respuesta.put("categories", statsDAO.categoriesBreakdown());
-            respuesta.put("averageWords", statsDAO.mediaPalabras());
+            respuesta.put("topRelationships", statsDAO.topRelationships(userId, 5));
+            respuesta.put("topFandoms", statsDAO.topFandoms(userId, 5));
+            respuesta.put("topWarnings", statsDAO.topWarnings(userId, 5));
+            respuesta.put("ao3Ratings", statsDAO.ratingAo3Breakdown(userId));
+            respuesta.put("userStars", statsDAO.estrellasBreakdown(userId));
+            respuesta.put("categories", statsDAO.categoriesBreakdown(userId));
+            respuesta.put("averageWords", statsDAO.mediaPalabras(userId));
 
             response.getWriter().write(gson.toJson(respuesta));
         } catch (Exception e) {
-            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
-            Map<String, Object> error = new HashMap<>();
-            error.put("ok", false);
-            error.put("mensaje", "No se pudieron cargar las estadisticas");
+            Map<String, Object> error = crearError("No se pudieron cargar las estadisticas");
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
-
             response.getWriter().write(gson.toJson(error));
         }
+    }
+
+    private Map<String, Object> crearError(String mensaje) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("ok", false);
+        error.put("mensaje", mensaje);
+        return error;
     }
 }

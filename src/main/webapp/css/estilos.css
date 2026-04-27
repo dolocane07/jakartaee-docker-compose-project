@@ -17,14 +17,12 @@
     --pine: #3e8fb0;
     --foam: #9ccfd8;
     --iris: #c4a7e7;
-    --highlight-low: #2a283e;
-    --highlight-med: #44415a;
-    --highlight-high: #56526e;
     --shadow: 0 18px 60px rgba(10, 8, 18, 0.38);
 }
 
 html {
     color-scheme: dark;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -50,6 +48,10 @@ body::before {
     background-size: 28px 28px;
     opacity: 0.22;
     pointer-events: none;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .page-glow {
@@ -84,20 +86,34 @@ body::before {
     z-index: 1;
 }
 
-.topbar,
-.archive-banner,
 .shell {
     border: 1px solid rgba(144, 140, 170, 0.18);
     box-shadow: var(--shadow);
+    background:
+        linear-gradient(180deg, rgba(49, 46, 73, 0.95), rgba(35, 33, 54, 0.95)),
+        rgba(35, 33, 54, 0.95);
+    border-radius: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(135deg, rgba(196, 167, 231, 0.12), transparent 24%),
+        linear-gradient(315deg, rgba(156, 207, 216, 0.08), transparent 20%);
+    pointer-events: none;
 }
 
 .topbar {
     background: rgba(24, 23, 38, 0.88);
     border-radius: 22px;
     padding: 14px 20px;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
     gap: 18px;
     position: sticky;
     top: 14px;
@@ -109,6 +125,8 @@ body::before {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 .topbar__dot {
@@ -126,8 +144,11 @@ body::before {
 
 .topbar__links {
     display: flex;
+    justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
 }
 
 .topbar__links a {
@@ -146,6 +167,31 @@ body::before {
     transform: translateY(-1px);
 }
 
+.topbar__session {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    z-index: 1;
+}
+
+.session-pill {
+    display: grid;
+    gap: 2px;
+    padding: 10px 14px;
+    border-radius: 18px;
+    background: rgba(57, 53, 82, 0.55);
+    border: 1px solid rgba(144, 140, 170, 0.16);
+}
+
+.session-pill__label {
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
 .archive-banner {
     background: linear-gradient(135deg, rgba(57, 53, 82, 0.96), rgba(35, 33, 54, 0.92));
     border-radius: 24px;
@@ -156,18 +202,34 @@ body::before {
     gap: 18px;
 }
 
+.archive-banner__meta,
+.archive-banner__stamp,
+.hero-copy,
+.hero-note,
+.panel-heading,
+.cabecera-seccion,
+.auth-shell__heading,
+.lista-fanfics,
+.stats,
+.footer {
+    position: relative;
+    z-index: 1;
+}
+
 .archive-banner__meta {
     display: grid;
     gap: 4px;
 }
 
-.archive-banner__stamp {
+.archive-banner__stamp,
+.footer__chips {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.archive-banner__stamp span {
+.archive-banner__stamp span,
+.footer__chips span {
     border: 1px solid rgba(196, 167, 231, 0.28);
     background: rgba(42, 39, 63, 0.78);
     color: var(--foam);
@@ -194,27 +256,9 @@ body::before {
     color: var(--subtle);
 }
 
-.shell {
-    background:
-        linear-gradient(180deg, rgba(49, 46, 73, 0.95), rgba(35, 33, 54, 0.95)),
-        rgba(35, 33, 54, 0.95);
-    border-radius: 28px;
-    position: relative;
-    overflow: hidden;
-}
-
-.shell::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(135deg, rgba(196, 167, 231, 0.12), transparent 24%),
-        linear-gradient(315deg, rgba(156, 207, 216, 0.08), transparent 20%);
-    pointer-events: none;
-}
-
 .hero,
-.panel {
+.panel,
+.auth-shell {
     padding: 28px;
 }
 
@@ -225,12 +269,6 @@ body::before {
     align-items: stretch;
 }
 
-.hero-copy,
-.hero-note {
-    position: relative;
-    z-index: 1;
-}
-
 .section-label {
     color: var(--gold);
     margin-bottom: 10px;
@@ -238,25 +276,29 @@ body::before {
 
 .hero h1,
 .panel h2,
+.auth-shell h2,
+.auth-card h3,
 .fanfic-card h3,
 .stat-card h3,
-.ranking-card h3 {
+.ranking-card h3,
+.empty-card h3,
+.footer__title {
     font-family: "Cormorant Garamond", Georgia, serif;
     letter-spacing: 0.01em;
 }
 
 .hero h1 {
-    max-width: 14ch;
+    max-width: 13ch;
     font-size: clamp(2.9rem, 6vw, 5rem);
     line-height: 0.92;
     margin-bottom: 16px;
 }
 
-.intro {
-    max-width: 62ch;
+.intro,
+.panel-copy,
+.footer__text {
     color: var(--subtle);
-    font-size: 1.02rem;
-    line-height: 1.75;
+    line-height: 1.7;
 }
 
 .hero-highlights {
@@ -266,14 +308,22 @@ body::before {
     gap: 12px;
 }
 
-.highlight-card {
-    padding: 16px;
-    border-radius: 18px;
-    background: rgba(24, 23, 38, 0.55);
-    border: 1px solid rgba(144, 140, 170, 0.14);
+.highlight-card,
+.auth-card,
+.stat-card,
+.ranking-card,
+.mensaje,
+.empty-card {
+    padding: 18px;
+    border-radius: 22px;
+    background: rgba(24, 23, 38, 0.62);
+    border: 1px solid rgba(144, 140, 170, 0.18);
 }
 
-.highlight-card__label {
+.highlight-card__label,
+.auth-card__eyebrow,
+.fanfic-card__eyebrow,
+.empty-card__eyebrow {
     color: var(--gold);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -281,7 +331,8 @@ body::before {
     margin-bottom: 8px;
 }
 
-.highlight-card__text {
+.highlight-card__text,
+.empty-card p {
     color: var(--subtle);
     line-height: 1.55;
 }
@@ -325,6 +376,7 @@ body::before {
     box-shadow: 0 0 0 5px rgba(196, 167, 231, 0.14);
 }
 
+.auth-shell__heading,
 .panel-heading,
 .cabecera-seccion {
     display: flex;
@@ -332,31 +384,30 @@ body::before {
     gap: 16px;
     align-items: end;
     margin-bottom: 18px;
-    position: relative;
-    z-index: 1;
 }
 
-.panel h2 {
-    font-size: 2rem;
+.panel h2,
+.auth-shell h2 {
+    font-size: 2.2rem;
 }
 
-.panel-copy {
-    max-width: 34ch;
-    color: var(--muted);
-    line-height: 1.6;
-}
-
-.contador {
-    color: var(--muted);
-}
-
-.grid-form {
+.auth-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
-    gap: 14px;
-    align-items: end;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
     position: relative;
     z-index: 1;
+}
+
+.auth-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+
+.auth-form,
+.edit-form {
+    display: grid;
+    gap: 12px;
 }
 
 .campo {
@@ -367,6 +418,15 @@ body::before {
 .campo span {
     color: var(--subtle);
     font-size: 0.92rem;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+    position: relative;
+    z-index: 1;
 }
 
 .campo input,
@@ -394,22 +454,57 @@ body::before {
     transform: translateY(-1px);
 }
 
-.boton-principal {
-    border: 1px solid rgba(196, 167, 231, 0.18);
+.boton-principal,
+.boton-secundario,
+.boton-ghost,
+.danger-button {
     border-radius: 16px;
-    padding: 14px 22px;
-    background: linear-gradient(135deg, var(--iris), var(--pine));
-    color: #181726;
+    padding: 14px 20px;
     font-size: 0.98rem;
     font-weight: 700;
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, background 0.2s ease;
+}
+
+.boton-principal {
+    border: 1px solid rgba(196, 167, 231, 0.18);
+    background: linear-gradient(135deg, var(--iris), var(--pine));
+    color: #181726;
     min-height: 50px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.boton-secundario {
+    border: 1px solid rgba(156, 207, 216, 0.24);
+    background: linear-gradient(135deg, rgba(156, 207, 216, 0.92), rgba(196, 167, 231, 0.92));
+    color: #181726;
+}
+
+.boton-ghost {
+    border: 1px solid rgba(144, 140, 170, 0.18);
+    background: rgba(57, 53, 82, 0.52);
+    color: var(--text);
+}
+
+.boton-ghost--small {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: 14px;
+}
+
+.danger-button {
+    border: 1px solid rgba(235, 111, 146, 0.3);
+    background: rgba(104, 41, 67, 0.44);
+    color: #ffd8e5;
+}
+
+.boton-principal:hover,
+.boton-secundario:hover,
+.boton-ghost:hover,
+.danger-button:hover {
+    transform: translateY(-1px);
 }
 
 .boton-principal:hover {
-    transform: translateY(-1px);
-    filter: saturate(1.06);
     box-shadow: 0 14px 28px rgba(62, 143, 176, 0.18);
 }
 
@@ -421,28 +516,44 @@ body::before {
     z-index: 1;
 }
 
+.estado--auth {
+    color: var(--gold);
+}
+
+.contador {
+    color: var(--muted);
+}
+
+.app-section {
+    display: grid;
+    gap: 22px;
+}
+
 .lista-fanfics {
     display: grid;
     gap: 16px;
-    position: relative;
-    z-index: 1;
 }
 
 .fanfic-card {
     border: 1px solid rgba(144, 140, 170, 0.2);
     border-radius: 22px;
     padding: 20px;
-    background:
-        linear-gradient(180deg, rgba(42, 39, 63, 0.92), rgba(35, 33, 54, 0.92));
+    background: linear-gradient(180deg, rgba(42, 39, 63, 0.92), rgba(35, 33, 54, 0.92));
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .fanfic-card__top {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    gap: 18px;
     align-items: start;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
+}
+
+.fanfic-card__summary {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
 }
 
 .fanfic-card h3 {
@@ -451,7 +562,10 @@ body::before {
     margin-bottom: 6px;
 }
 
-.autor {
+.autor,
+.tag-empty,
+.ranking-card li,
+.mensaje.neutro {
     color: var(--subtle);
 }
 
@@ -463,11 +577,58 @@ body::before {
     text-shadow: 0 0 18px rgba(246, 193, 119, 0.16);
 }
 
+.fanfic-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.fanfic-quick-grid p {
+    display: grid;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(24, 23, 38, 0.42);
+    border: 1px solid rgba(144, 140, 170, 0.12);
+}
+
+.fanfic-quick-grid strong {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fanfic-quick-grid span,
+.fanfic-quick-grid a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.fanfic-details {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.25s ease;
+}
+
+.fanfic-card.expanded .fanfic-details {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 18px;
+}
+
+.fanfic-details__inner {
+    display: grid;
+    gap: 16px;
+    padding-top: 4px;
+}
+
 .meta-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 16px;
-    margin-bottom: 18px;
     padding: 14px;
     border-radius: 18px;
     background: rgba(24, 23, 38, 0.52);
@@ -487,12 +648,8 @@ body::before {
     text-decoration: none;
 }
 
-.meta-grid a:hover {
-    color: var(--iris);
-}
-
 .tag-group + .tag-group {
-    margin-top: 14px;
+    margin-top: 4px;
 }
 
 .tag-title {
@@ -503,10 +660,12 @@ body::before {
     text-transform: uppercase;
 }
 
-.tags {
+.tags,
+.empty-card__chips {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    margin-top: 12px;
 }
 
 .tag {
@@ -518,30 +677,49 @@ body::before {
     font-size: 0.9rem;
 }
 
-.tag-empty {
-    color: var(--muted);
+.edit-form {
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(24, 23, 38, 0.5);
+    border: 1px solid rgba(144, 140, 170, 0.14);
+}
+
+.edit-form__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.edit-form__actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.edit-form__feedback {
+    min-height: 20px;
+    color: var(--foam);
+    margin-top: 10px;
 }
 
 .stats {
     display: grid;
     gap: 18px;
-    position: relative;
-    z-index: 1;
 }
 
-.stats-grid {
+.stats-grid,
+.stats-lists {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
 }
 
-.stat-card,
-.ranking-card,
-.mensaje {
-    border: 1px solid rgba(144, 140, 170, 0.18);
-    border-radius: 22px;
-    padding: 18px;
-    background: rgba(24, 23, 38, 0.62);
+.stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stats-lists {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .stat-card h3,
@@ -555,12 +733,6 @@ body::before {
     color: var(--foam);
     font-weight: 700;
     font-family: "Cormorant Garamond", Georgia, serif;
-}
-
-.stats-lists {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
 }
 
 .ranking-card ol,
@@ -577,11 +749,6 @@ body::before {
     align-items: start;
     border-top: 1px solid rgba(144, 140, 170, 0.16);
     padding-top: 10px;
-    color: var(--subtle);
-}
-
-.ranking-card li strong {
-    color: var(--gold);
 }
 
 .ranking-card li:first-child {
@@ -589,50 +756,19 @@ body::before {
     padding-top: 0;
 }
 
-.mensaje.neutro {
-    color: var(--subtle);
+.ranking-card li strong {
+    color: var(--gold);
 }
 
 .mensaje.error {
     color: var(--love);
 }
 
-.empty-card {
-    border: 1px solid rgba(144, 140, 170, 0.18);
-    border-radius: 22px;
-    padding: 22px;
-    background:
-        linear-gradient(180deg, rgba(42, 39, 63, 0.92), rgba(35, 33, 54, 0.92));
-}
-
-.empty-card h3 {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 2rem;
-    margin-bottom: 8px;
-}
-
-.empty-card p {
-    color: var(--subtle);
-    line-height: 1.65;
-}
-
-.empty-card__eyebrow {
-    color: var(--rose);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-    margin-bottom: 8px;
-}
-
-.empty-card__chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+.empty-card--stats .progress {
     margin-top: 16px;
 }
 
 .progress {
-    margin-top: 16px;
     width: 100%;
     height: 12px;
     border-radius: 999px;
@@ -659,53 +795,34 @@ body::before {
 }
 
 .footer__title {
-    font-family: "Cormorant Garamond", Georgia, serif;
     font-size: 1.6rem;
     margin-bottom: 4px;
 }
 
-.footer__text {
-    color: var(--muted);
-    line-height: 1.6;
-}
+@media (max-width: 1080px) {
+    .topbar {
+        grid-template-columns: 1fr;
+    }
 
-.footer__chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
+    .topbar__links,
+    .topbar__session {
+        justify-content: flex-start;
+    }
 
-.footer__chips span {
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: rgba(57, 53, 82, 0.65);
-    border: 1px solid rgba(144, 140, 170, 0.18);
-    color: var(--foam);
-    font-size: 0.88rem;
-}
-
-@media (max-width: 980px) {
-    .hero-highlights,
     .hero,
+    .hero-highlights,
+    .auth-grid,
     .grid-form,
+    .fanfic-quick-grid,
+    .edit-form__fields,
     .stats-lists,
     .stats-grid,
     .meta-grid {
         grid-template-columns: 1fr;
     }
-
-    .topbar,
-    .footer {
-        flex-direction: column;
-        align-items: start;
-    }
-
-    .boton-principal {
-        width: 100%;
-    }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
     .layout {
         width: min(100% - 18px, 1180px);
         padding: 18px 0 28px;
@@ -714,16 +831,22 @@ body::before {
     .topbar,
     .archive-banner,
     .hero,
-    .panel {
+    .panel,
+    .auth-shell {
         padding: 18px;
     }
 
-    .topbar,
     .archive-banner,
+    .panel-heading,
     .cabecera-seccion,
-    .fanfic-card__top {
+    .fanfic-card__top,
+    .footer {
         flex-direction: column;
         align-items: start;
+    }
+
+    .fanfic-card__summary {
+        justify-items: start;
     }
 
     .hero h1 {

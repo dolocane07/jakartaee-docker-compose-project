@@ -10,47 +10,61 @@ DROP TABLE IF EXISTS warnings;
 DROP TABLE IF EXISTS relationships;
 DROP TABLE IF EXISTS fandoms;
 DROP TABLE IF EXISTS fanfics;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(60) NOT NULL,
+    email VARCHAR(180) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_users_username (username),
+    UNIQUE KEY uk_users_email (email)
+);
 
 CREATE TABLE fanfics (
     id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NULL,
     ao3_url VARCHAR(500) NOT NULL,
     ao3_work_id VARCHAR(50) NULL,
-    titulo VARCHAR(255) NOT NULL,
-    autor VARCHAR(255) NOT NULL,
+    titulo VARCHAR(500) NOT NULL,
+    autor VARCHAR(500) NOT NULL,
     ao3_rating VARCHAR(120) NOT NULL,
     word_count INT NOT NULL DEFAULT 0,
     finished_date DATE NOT NULL,
     user_stars TINYINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_fanfics_ao3_url (ao3_url),
-    UNIQUE KEY uk_fanfics_ao3_work_id (ao3_work_id)
+    KEY idx_fanfics_user_id (user_id),
+    UNIQUE KEY uk_fanfics_user_ao3_url (user_id, ao3_url),
+    UNIQUE KEY uk_fanfics_user_ao3_work_id (user_id, ao3_work_id)
 );
 
 CREATE TABLE fandoms (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(500) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_fandoms_name (name)
 );
 
 CREATE TABLE relationships (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(500) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_relationships_name (name)
 );
 
 CREATE TABLE warnings (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(500) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_warnings_name (name)
 );
 
 CREATE TABLE categories (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(150) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_categories_name (name)
 );

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +13,14 @@ import com.ejemplo.util.ErrorUtil;
 
 public class FanficDAO {
 
-    public boolean existePorUrl(String ao3Url) {
-        String sql = "SELECT 1 FROM fanfics WHERE ao3_url = ?";
+    public boolean existePorUrl(int userId, String ao3Url) {
+        String sql = "SELECT 1 FROM fanfics WHERE user_id = ? AND ao3_url = ?";
 
         try (Connection conexion = ConexionBD.getConnection();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, ao3Url);
+            ps.setInt(1, userId);
+            ps.setString(2, ao3Url);
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -28,25 +30,29 @@ public class FanficDAO {
         }
     }
 
-    public int guardar(Fanfic fanfic) {
+    public int guardar(int userId, Fanfic fanfic) {
         String sql = """
                 INSERT INTO fanfics (
-                    ao3_url, ao3_work_id, titulo, autor, ao3_rating, word_count, finished_date, user_stars
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    user_id, ao3_url, ao3_work_id, titulo, autor, ao3_rating, word_count, finished_date, user_stars
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection conexion = ConexionBD.getConnection()) {
+        Connection conexion = null;
+
+        try {
+            conexion = ConexionBD.getConnection();
             conexion.setAutoCommit(false);
 
             try (PreparedStatement ps = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                ps.setString(1, fanfic.getAo3Url());
-                ps.setString(2, fanfic.getAo3WorkId());
-                ps.setString(3, fanfic.getTitulo());
-                ps.setString(4, fanfic.getAutor());
-                ps.setString(5, fanfic.getAo3Rating());
-                ps.setInt(6, fanfic.getWordCount());
-                ps.setDate(7, Date.valueOf(fanfic.getFinishedDate()));
-                ps.setInt(8, fanfic.getUserStars());
+                ps.setInt(1, userId);
+                ps.setString(2, fanfic.getAo3Url());
+                ps.setString(3, fanfic.getAo3WorkId());
+                ps.setString(4, fanfic.getTitulo());
+                ps.setString(5, fanfic.getAutor());
+                ps.setString(6, fanfic.getAo3Rating());
+                ps.setInt(7, fanfic.getWordCount());
+                ps.setDate(8, Date.valueOf(fanfic.getFinishedDate()));
+                ps.setInt(9, fanfic.getUserStars());
                 ps.executeUpdate();
 
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -64,39 +70,32 @@ public class FanficDAO {
             conexion.commit();
             return fanfic.getId();
         } catch (Exception e) {
+            rollbackSilencioso(conexion);
             throw new RuntimeException("Error al guardar el fanfic: " + ErrorUtil.getRootCauseMessage(e), e);
+        } finally {
+            cerrarSilencioso(conexion);
         }
     }
 
-    public List<Fanfic> listarTodos() {
+    public List<Fanfic> listarTodos(int userId) {
         List<Fanfic> fanfics = new ArrayList<>();
 
         String sql = """
                 SELECT id, ao3_url, ao3_work_id, titulo, autor, ao3_rating, word_count, finished_date, user_stars
                 FROM fanfics
+                WHERE user_id = ?
                 ORDER BY finished_date DESC, created_at DESC
                 """;
 
         try (Connection conexion = ConexionBD.getConnection();
-             PreparedStatement ps = conexion.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                Fanfic fanfic = new Fanfic();
-                fanfic.setId(rs.getInt("id"));
-                fanfic.setAo3Url(rs.getString("ao3_url"));
-                fanfic.setAo3WorkId(rs.getString("ao3_work_id"));
-                fanfic.setTitulo(rs.getString("titulo"));
-                fanfic.setAutor(rs.getString("autor"));
-                fanfic.setAo3Rating(rs.getString("ao3_rating"));
-                fanfic.setWordCount(rs.getInt("word_count"));
-                fanfic.setFinishedDate(rs.getDate("finished_date").toString());
-                fanfic.setUserStars(rs.getInt("user_stars"));
-                fanfic.setFandoms(cargarTags(conexion, fanfic.getId(), "fandoms", "fandom_id", "fanfic_fandom"));
-                fanfic.setRelationships(cargarTags(conexion, fanfic.getId(), "relationships", "relationship_id", "fanfic_relationship"));
-                fanfic.setWarnings(cargarTags(conexion, fanfic.getId(), "warnings", "warning_id", "fanfic_warning"));
-                fanfic.setCategories(cargarTags(conexion, fanfic.getId(), "categories", "category_id", "fanfic_category"));
-                fanfics.add(fanfic);
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    fanfics.add(mapearFanfic(conexion, rs));
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Error al listar fanfics: " + ErrorUtil.getRootCauseMessage(e), e);
@@ -105,18 +104,83 @@ public class FanficDAO {
         return fanfics;
     }
 
-    public int contarFanfics() {
-        String sql = "SELECT COUNT(*) FROM fanfics";
+    public int contarFanfics(int userId) {
+        String sql = "SELECT COUNT(*) FROM fanfics WHERE user_id = ?";
 
         try (Connection conexion = ConexionBD.getConnection();
-             PreparedStatement ps = conexion.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            rs.next();
-            return rs.getInt(1);
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error al contar fanfics: " + ErrorUtil.getRootCauseMessage(e), e);
         }
+    }
+
+    public void actualizarLectura(int userId, int fanficId, String finishedDate, int userStars) {
+        String sql = """
+                UPDATE fanfics
+                SET finished_date = ?, user_stars = ?
+                WHERE id = ? AND user_id = ?
+                """;
+
+        try (Connection conexion = ConexionBD.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setDate(1, Date.valueOf(finishedDate));
+            ps.setInt(2, userStars);
+            ps.setInt(3, fanficId);
+            ps.setInt(4, userId);
+
+            if (ps.executeUpdate() == 0) {
+                throw new IllegalArgumentException("No se encontro esa entrada para editar");
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar el fanfic: " + ErrorUtil.getRootCauseMessage(e), e);
+        }
+    }
+
+    public void eliminar(int userId, int fanficId) {
+        String sql = "DELETE FROM fanfics WHERE id = ? AND user_id = ?";
+
+        try (Connection conexion = ConexionBD.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, fanficId);
+            ps.setInt(2, userId);
+
+            if (ps.executeUpdate() == 0) {
+                throw new IllegalArgumentException("No se encontro esa entrada para borrar");
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al borrar el fanfic: " + ErrorUtil.getRootCauseMessage(e), e);
+        }
+    }
+
+    private Fanfic mapearFanfic(Connection conexion, ResultSet rs) throws Exception {
+        Fanfic fanfic = new Fanfic();
+        fanfic.setId(rs.getInt("id"));
+        fanfic.setAo3Url(rs.getString("ao3_url"));
+        fanfic.setAo3WorkId(rs.getString("ao3_work_id"));
+        fanfic.setTitulo(rs.getString("titulo"));
+        fanfic.setAutor(rs.getString("autor"));
+        fanfic.setAo3Rating(rs.getString("ao3_rating"));
+        fanfic.setWordCount(rs.getInt("word_count"));
+        fanfic.setFinishedDate(rs.getDate("finished_date").toString());
+        fanfic.setUserStars(rs.getInt("user_stars"));
+        fanfic.setFandoms(cargarTags(conexion, fanfic.getId(), "fandoms", "fandom_id", "fanfic_fandom"));
+        fanfic.setRelationships(cargarTags(conexion, fanfic.getId(), "relationships", "relationship_id", "fanfic_relationship"));
+        fanfic.setWarnings(cargarTags(conexion, fanfic.getId(), "warnings", "warning_id", "fanfic_warning"));
+        fanfic.setCategories(cargarTags(conexion, fanfic.getId(), "categories", "category_id", "fanfic_category"));
+        return fanfic;
     }
 
     private void guardarTags(Connection conexion, int fanficId, List<String> tags, String tablaCatalogo,
@@ -150,7 +214,7 @@ public class FanficDAO {
 
     private void insertarRelacion(Connection conexion, int fanficId, int catalogoId, String columnaCatalogoId,
                                   String tablaRelacion) throws Exception {
-        String sql = "INSERT INTO " + tablaRelacion + " (fanfic_id, " + columnaCatalogoId + ") VALUES (?, ?)";
+        String sql = "INSERT IGNORE INTO " + tablaRelacion + " (fanfic_id, " + columnaCatalogoId + ") VALUES (?, ?)";
 
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, fanficId);
@@ -182,5 +246,27 @@ public class FanficDAO {
         }
 
         return tags;
+    }
+
+    private void rollbackSilencioso(Connection conexion) {
+        if (conexion == null) {
+            return;
+        }
+
+        try {
+            conexion.rollback();
+        } catch (SQLException ignored) {
+        }
+    }
+
+    private void cerrarSilencioso(Connection conexion) {
+        if (conexion == null) {
+            return;
+        }
+
+        try {
+            conexion.close();
+        } catch (SQLException ignored) {
+        }
     }
 }

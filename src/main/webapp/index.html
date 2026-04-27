@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/estilos.css?v=4">
+    <link rel="stylesheet" href="/css/estilos.css?v=6">
 </head>
 <body>
     <div class="page-glow page-glow--left"></div>
@@ -23,10 +23,12 @@
                 </div>
             </div>
             <div class="topbar__links">
+                <a href="#authSection">Cuenta</a>
                 <a href="#importar">Importar</a>
                 <a href="#biblioteca">Biblioteca</a>
                 <a href="#estadisticas">Estadisticas</a>
             </div>
+            <div id="authStatus" class="topbar__session"></div>
         </nav>
 
         <header class="archive-banner">
@@ -35,6 +37,7 @@
                 <p class="archive-kicker">Rosé Pine Cool inspired skin</p>
             </div>
             <div class="archive-banner__stamp">
+                <span>Accounts</span>
                 <span>Library</span>
                 <span>Stats</span>
                 <span>Archive</span>
@@ -44,24 +47,25 @@
         <section class="hero shell">
             <div class="hero-copy">
                 <p class="section-label">Personal Archive</p>
-                <h1>Guarda tus fanfics terminados con una estetica tipo AO3 Rosé Pine Cool</h1>
+                <h1>Guarda tus fanfics por cuenta y organizalos como una biblioteca de verdad</h1>
                 <p class="intro">
-                    Pega el link de un work de AO3, recoge sus metadatos principales y conviertelo en una
-                    biblioteca bonita con parejas, fandoms, ratings y estadisticas.
+                    Cada persona tiene su propia cuenta, su propio archivo y sus propias estadisticas.
+                    Importa desde AO3, edita tus estrellas y la fecha final, despliega todos los datos
+                    de cada fanfic y limpia tu biblioteca cuando quieras.
                 </p>
 
                 <div class="hero-highlights">
                     <article class="highlight-card">
-                        <p class="highlight-card__label">Importa</p>
-                        <p class="highlight-card__text">Titulo, autor, warnings, parejas, fandom, rating y words.</p>
+                        <p class="highlight-card__label">Cuenta propia</p>
+                        <p class="highlight-card__text">Registro e inicio de sesion para que cada biblioteca sea privada.</p>
                     </article>
                     <article class="highlight-card">
-                        <p class="highlight-card__label">Valora</p>
-                        <p class="highlight-card__text">Guarda cuando lo terminaste y tu puntuacion en estrellas.</p>
+                        <p class="highlight-card__label">Detalle deslizable</p>
+                        <p class="highlight-card__text">Abre cada ficha para ver tags, rating, fecha y acciones de edición.</p>
                     </article>
                     <article class="highlight-card">
-                        <p class="highlight-card__label">Descubre</p>
-                        <p class="highlight-card__text">Encuentra tus parejas, fandoms y categorias mas leidas.</p>
+                        <p class="highlight-card__label">Edicion rapida</p>
+                        <p class="highlight-card__text">Cambia tus estrellas, la fecha de finalizacion o borra entradas sin salir de la tarjeta.</p>
                     </article>
                 </div>
             </div>
@@ -70,77 +74,130 @@
                 <p class="hero-note__title">Quick rules</p>
                 <ul>
                     <li>Works publicos de AO3</li>
-                    <li>Fecha de finalizacion obligatoria</li>
-                    <li>Estadisticas desbloqueadas a partir de 10 fanfics</li>
+                    <li>Cuenta obligatoria para guardar fanfics</li>
+                    <li>Estadisticas desbloqueadas a partir de 10 fanfics por cuenta</li>
                 </ul>
             </aside>
         </section>
 
-        <section class="panel shell" id="importar">
-            <div class="panel-heading">
+        <section class="auth-shell shell" id="authSection">
+            <div class="auth-shell__heading">
                 <div>
-                    <p class="section-label">Import</p>
-                    <h2>Importar fanfic</h2>
+                    <p class="section-label">Cuenta</p>
+                    <h2>Inicia sesion o crea tu archivo</h2>
                 </div>
-                <p class="panel-copy">Pega un enlace publico de AO3 y deja que el tracker recoja los metadatos principales.</p>
+                <p class="panel-copy">Tu biblioteca y tus estadisticas quedaran ligadas a tu cuenta.</p>
             </div>
 
-            <form id="formFanfic" class="grid-form">
-                <label class="campo campo-grande">
-                    <span>URL del fanfic</span>
-                    <input type="url" id="url" placeholder="https://archiveofourown.org/works/12345678" required>
-                </label>
+            <div class="auth-grid">
+                <article class="auth-card">
+                    <p class="auth-card__eyebrow">Crear cuenta</p>
+                    <h3>Registro</h3>
+                    <form id="registerForm" class="auth-form">
+                        <label class="campo">
+                            <span>Usuario</span>
+                            <input type="text" id="registerUsername" autocomplete="username" required>
+                        </label>
+                        <label class="campo">
+                            <span>Email</span>
+                            <input type="email" id="registerEmail" autocomplete="email" required>
+                        </label>
+                        <label class="campo">
+                            <span>Contraseña</span>
+                            <input type="password" id="registerPassword" autocomplete="new-password" required>
+                        </label>
+                        <button class="boton-principal" type="submit">Crear cuenta</button>
+                    </form>
+                </article>
 
-                <label class="campo">
-                    <span>Fecha en que lo terminaste</span>
-                    <input type="date" id="finishedDate" required>
-                </label>
-
-                <label class="campo">
-                    <span>Tu rating</span>
-                    <select id="userStars" required>
-                        <option value="5">5 estrellas</option>
-                        <option value="4">4 estrellas</option>
-                        <option value="3">3 estrellas</option>
-                        <option value="2">2 estrellas</option>
-                        <option value="1">1 estrella</option>
-                    </select>
-                </label>
-
-                <button class="boton-principal" type="submit">Guardar fanfic</button>
-            </form>
-
-            <div id="estado" class="estado"></div>
-        </section>
-
-        <section class="panel shell" id="biblioteca">
-            <div class="cabecera-seccion">
-                <div>
-                    <p class="section-label">Archive</p>
-                    <h2>Biblioteca</h2>
-                </div>
-                <p id="contadorFanfics" class="contador"></p>
+                <article class="auth-card">
+                    <p class="auth-card__eyebrow">Volver a entrar</p>
+                    <h3>Inicio de sesion</h3>
+                    <form id="loginForm" class="auth-form">
+                        <label class="campo">
+                            <span>Usuario o email</span>
+                            <input type="text" id="loginIdentifier" autocomplete="username" required>
+                        </label>
+                        <label class="campo">
+                            <span>Contraseña</span>
+                            <input type="password" id="loginPassword" autocomplete="current-password" required>
+                        </label>
+                        <button class="boton-secundario" type="submit">Entrar</button>
+                    </form>
+                </article>
             </div>
-            <div id="listaFanfics" class="lista-fanfics"></div>
+
+            <div id="authEstado" class="estado estado--auth"></div>
         </section>
 
-        <section class="panel shell" id="estadisticas">
-            <div class="cabecera-seccion">
-                <div>
-                    <p class="section-label">Patterns</p>
-                    <h2>Estadisticas</h2>
+        <div id="appSection" class="app-section hidden">
+            <section class="panel shell" id="importar">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-label">Import</p>
+                        <h2>Importar fanfic</h2>
+                    </div>
+                    <p class="panel-copy">Pega un enlace publico de AO3 y deja que el tracker recoja los metadatos principales.</p>
                 </div>
-                <p class="contador">Se activan al llegar a 10 fanfics</p>
-            </div>
-            <div id="stats" class="stats"></div>
-        </section>
+
+                <form id="formFanfic" class="grid-form">
+                    <label class="campo campo-grande">
+                        <span>URL del fanfic</span>
+                        <input type="url" id="url" placeholder="https://archiveofourown.org/works/12345678" required>
+                    </label>
+
+                    <label class="campo">
+                        <span>Fecha en que lo terminaste</span>
+                        <input type="date" id="finishedDate" required>
+                    </label>
+
+                    <label class="campo">
+                        <span>Tu rating</span>
+                        <select id="userStars" required>
+                            <option value="5">5 estrellas</option>
+                            <option value="4">4 estrellas</option>
+                            <option value="3">3 estrellas</option>
+                            <option value="2">2 estrellas</option>
+                            <option value="1">1 estrella</option>
+                        </select>
+                    </label>
+
+                    <button class="boton-principal" type="submit">Guardar fanfic</button>
+                </form>
+
+                <div id="estado" class="estado"></div>
+            </section>
+
+            <section class="panel shell" id="biblioteca">
+                <div class="cabecera-seccion">
+                    <div>
+                        <p class="section-label">Archive</p>
+                        <h2>Biblioteca</h2>
+                    </div>
+                    <p id="contadorFanfics" class="contador"></p>
+                </div>
+                <div id="listaFanfics" class="lista-fanfics"></div>
+            </section>
+
+            <section class="panel shell" id="estadisticas">
+                <div class="cabecera-seccion">
+                    <div>
+                        <p class="section-label">Patterns</p>
+                        <h2>Estadisticas</h2>
+                    </div>
+                    <p class="contador">Se activan al llegar a 10 fanfics</p>
+                </div>
+                <div id="stats" class="stats"></div>
+            </section>
+        </div>
 
         <footer class="footer shell">
             <div>
                 <p class="footer__title">AO3 Fanfic Tracker</p>
-                <p class="footer__text">Diseño inspirado en la vibra de AO3 Rosé Pine Cool, adaptado a tu biblioteca personal.</p>
+                <p class="footer__text">Diseño inspirado en la vibra de AO3 Rosé Pine Cool, adaptado a una biblioteca privada por cuenta.</p>
             </div>
             <div class="footer__chips">
+                <span>Accounts</span>
                 <span>AO3 metadata</span>
                 <span>Reading stats</span>
                 <span>Personal archive</span>
@@ -148,6 +205,6 @@
         </footer>
     </main>
 
-    <script src="/js/app.js?v=4"></script>
+    <script src="/js/app.js?v=6"></script>
 </body>
 </html>
