@@ -25,8 +25,8 @@ public class SchemaInitializer {
                             id INT NOT NULL AUTO_INCREMENT,
                             ao3_url VARCHAR(500) NOT NULL,
                             ao3_work_id VARCHAR(50) NULL,
-                            titulo VARCHAR(255) NOT NULL,
-                            autor VARCHAR(255) NOT NULL,
+                            titulo VARCHAR(500) NOT NULL,
+                            autor VARCHAR(500) NOT NULL,
                             ao3_rating VARCHAR(120) NOT NULL,
                             word_count INT NOT NULL DEFAULT 0,
                             finished_date DATE NOT NULL,
@@ -41,7 +41,7 @@ public class SchemaInitializer {
                 ejecutar(conexion, """
                         CREATE TABLE IF NOT EXISTS fandoms (
                             id INT NOT NULL AUTO_INCREMENT,
-                            name VARCHAR(255) NOT NULL,
+                            name VARCHAR(500) NOT NULL,
                             PRIMARY KEY (id),
                             UNIQUE KEY uk_fandoms_name (name)
                         )
@@ -50,7 +50,7 @@ public class SchemaInitializer {
                 ejecutar(conexion, """
                         CREATE TABLE IF NOT EXISTS relationships (
                             id INT NOT NULL AUTO_INCREMENT,
-                            name VARCHAR(255) NOT NULL,
+                            name VARCHAR(500) NOT NULL,
                             PRIMARY KEY (id),
                             UNIQUE KEY uk_relationships_name (name)
                         )
@@ -59,7 +59,7 @@ public class SchemaInitializer {
                 ejecutar(conexion, """
                         CREATE TABLE IF NOT EXISTS warnings (
                             id INT NOT NULL AUTO_INCREMENT,
-                            name VARCHAR(255) NOT NULL,
+                            name VARCHAR(500) NOT NULL,
                             PRIMARY KEY (id),
                             UNIQUE KEY uk_warnings_name (name)
                         )
@@ -68,11 +68,18 @@ public class SchemaInitializer {
                 ejecutar(conexion, """
                         CREATE TABLE IF NOT EXISTS categories (
                             id INT NOT NULL AUTO_INCREMENT,
-                            name VARCHAR(100) NOT NULL,
+                            name VARCHAR(150) NOT NULL,
                             PRIMARY KEY (id),
                             UNIQUE KEY uk_categories_name (name)
                         )
                         """);
+
+                ejecutar(conexion, "ALTER TABLE fanfics MODIFY titulo VARCHAR(500) NOT NULL");
+                ejecutar(conexion, "ALTER TABLE fanfics MODIFY autor VARCHAR(500) NOT NULL");
+                ejecutar(conexion, "ALTER TABLE fandoms MODIFY name VARCHAR(500) NOT NULL");
+                ejecutar(conexion, "ALTER TABLE relationships MODIFY name VARCHAR(500) NOT NULL");
+                ejecutar(conexion, "ALTER TABLE warnings MODIFY name VARCHAR(500) NOT NULL");
+                ejecutar(conexion, "ALTER TABLE categories MODIFY name VARCHAR(150) NOT NULL");
 
                 ejecutar(conexion, """
                         CREATE TABLE IF NOT EXISTS fanfic_fandom (

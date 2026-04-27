@@ -28,7 +28,7 @@ formFanfic.addEventListener('submit', async (evento) => {
         const datos = await respuesta.json();
 
         if (!respuesta.ok || !datos.ok) {
-            throw new Error(datos.mensaje || 'No se pudo guardar el fanfic');
+            throw new Error(datos.detalle || datos.mensaje || 'No se pudo guardar el fanfic');
         }
 
         estado.textContent = `Fanfic guardado: ${datos.fanfic.titulo}`;
@@ -51,7 +51,7 @@ async function cargarFanfics() {
         const datos = await respuesta.json();
 
         if (!respuesta.ok || !datos.ok) {
-            throw new Error(datos.mensaje || 'No se pudieron cargar los fanfics');
+            throw new Error(datos.detalle || datos.mensaje || 'No se pudieron cargar los fanfics');
         }
 
         contadorFanfics.textContent = `${datos.fanfics.length} fanfic(s) guardado(s)`;
@@ -90,7 +90,7 @@ async function cargarEstadisticas() {
         const datos = await respuesta.json();
 
         if (!respuesta.ok || !datos.ok) {
-            throw new Error(datos.mensaje || 'No se pudieron cargar las estadisticas');
+            throw new Error(datos.detalle || datos.mensaje || 'No se pudieron cargar las estadisticas');
         }
 
         if (!datos.enabled) {
