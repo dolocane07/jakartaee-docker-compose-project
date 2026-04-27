@@ -13,6 +13,7 @@ const contadorFanfics = document.getElementById('contadorFanfics');
 const authStatus = document.getElementById('authStatus');
 const authSection = document.getElementById('authSection');
 const appSection = document.getElementById('appSection');
+const heroSection = document.getElementById('heroSection');
 const authEstado = document.getElementById('authEstado');
 const registerForm = document.getElementById('registerForm');
 const loginForm = document.getElementById('loginForm');
@@ -298,6 +299,7 @@ function actualizarSesion(user) {
     state.user = user;
     appSection.classList.toggle('hidden', !user);
     authSection.classList.toggle('hidden', Boolean(user));
+    heroSection.classList.toggle('hidden', Boolean(user));
 
     if (user) {
         authStatus.innerHTML = `
