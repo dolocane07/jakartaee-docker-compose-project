@@ -13,6 +13,7 @@ public final class SessionUtil {
     private static final String USER_ID = "userId";
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
+    private static final String IS_ADMIN = "isAdmin";
 
     private SessionUtil() {
     }
@@ -27,6 +28,7 @@ public final class SessionUtil {
         nueva.setAttribute(USER_ID, user.getId());
         nueva.setAttribute(USERNAME, user.getUsername());
         nueva.setAttribute(EMAIL, user.getEmail());
+        nueva.setAttribute(IS_ADMIN, user.isAdmin());
         nueva.setMaxInactiveInterval(60 * 60 * 24 * 14);
     }
 
@@ -62,6 +64,17 @@ public final class SessionUtil {
         user.put("id", userId);
         user.put("username", session.getAttribute(USERNAME));
         user.put("email", session.getAttribute(EMAIL));
+        user.put("isAdmin", isAdmin(request));
         return user;
+    }
+
+    public static boolean isAdmin(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return false;
+        }
+
+        Object valor = session.getAttribute(IS_ADMIN);
+        return valor instanceof Boolean bool && bool;
     }
 }

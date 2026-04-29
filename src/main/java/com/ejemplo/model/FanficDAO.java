@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ejemplo.util.ErrorUtil;
 
@@ -121,6 +123,46 @@ public class FanficDAO {
         }
     }
 
+    public List<Map<String, Object>> listarTodosAdmin() {
+        List<Map<String, Object>> fanfics = new ArrayList<>();
+
+        String sql = """
+                SELECT f.id,
+                       f.titulo,
+                       f.autor,
+                       f.ao3_rating,
+                       f.finished_date,
+                       f.user_stars,
+                       u.id AS owner_user_id,
+                       u.username AS owner_username
+                FROM fanfics f
+                JOIN users u ON u.id = f.user_id
+                ORDER BY f.created_at DESC, f.finished_date DESC
+                """;
+
+        try (Connection conexion = ConexionBD.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> fanfic = new HashMap<>();
+                fanfic.put("id", rs.getInt("id"));
+                fanfic.put("titulo", rs.getString("titulo"));
+                fanfic.put("autor", rs.getString("autor"));
+                fanfic.put("ao3Rating", rs.getString("ao3_rating"));
+                fanfic.put("finishedDate", rs.getDate("finished_date").toString());
+                fanfic.put("userStars", rs.getInt("user_stars"));
+                fanfic.put("ownerUserId", rs.getInt("owner_user_id"));
+                fanfic.put("ownerUsername", rs.getString("owner_username"));
+                fanfics.add(fanfic);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al listar los fanfics para admin: " + ErrorUtil.getRootCauseMessage(e), e);
+        }
+
+        return fanfics;
+    }
+
     public void actualizarLectura(int userId, int fanficId, String finishedDate, int userStars) {
         String sql = """
                 UPDATE fanfics
@@ -162,6 +204,24 @@ public class FanficDAO {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error al borrar el fanfic: " + ErrorUtil.getRootCauseMessage(e), e);
+        }
+    }
+
+    public void eliminarComoAdmin(int fanficId) {
+        String sql = "DELETE FROM fanfics WHERE id = ?";
+
+        try (Connection conexion = ConexionBD.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, fanficId);
+
+            if (ps.executeUpdate() == 0) {
+                throw new IllegalArgumentException("No se encontro esa entrada para borrar");
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al borrar el fanfic como admin: " + ErrorUtil.getRootCauseMessage(e), e);
         }
     }
 

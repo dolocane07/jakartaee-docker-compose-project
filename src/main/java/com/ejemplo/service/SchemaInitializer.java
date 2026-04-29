@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import com.ejemplo.model.ConexionBD;
+import com.ejemplo.util.PasswordUtil;
 
 public class SchemaInitializer {
 
@@ -40,10 +41,15 @@ public class SchemaInitializer {
                     username VARCHAR(60) NOT NULL,
                     email VARCHAR(180) NOT NULL,
                     password_hash VARCHAR(255) NOT NULL,
+                    is_admin TINYINT(1) NOT NULL DEFAULT 0,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (id)
                 )
                 """);
+
+        if (!columnaExiste(conexion, "users", "is_admin")) {
+            ejecutar(conexion, "ALTER TABLE users ADD COLUMN is_admin TINYINT(1) NOT NULL DEFAULT 0 AFTER password_hash");
+        }
 
         if (!indiceExiste(conexion, "users", "uk_users_username")) {
             ejecutar(conexion, "CREATE UNIQUE INDEX uk_users_username ON users (username)");
@@ -52,6 +58,8 @@ public class SchemaInitializer {
         if (!indiceExiste(conexion, "users", "uk_users_email")) {
             ejecutar(conexion, "CREATE UNIQUE INDEX uk_users_email ON users (email)");
         }
+
+        asegurarAdminInicial(conexion);
     }
 
     private void crearTablaFanfics(Connection conexion) throws Exception {
@@ -223,5 +231,63 @@ public class SchemaInitializer {
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.execute();
         }
+    }
+
+    private void asegurarAdminInicial(Connection conexion) throws Exception {
+        if (existeAdmin(conexion)) {
+            return;
+        }
+
+        String username = obtenerEnv("ADMIN_USERNAME", "admin").toLowerCase();
+        String email = obtenerEnv("ADMIN_EMAIL", "admin@ao3tracker.local").toLowerCase();
+        String password = obtenerEnv("ADMIN_PASSWORD", "admin12345");
+
+        Integer userId = buscarUsuarioPorCampo(conexion, "username", username);
+        if (userId == null) {
+            userId = buscarUsuarioPorCampo(conexion, "email", email);
+        }
+
+        if (userId != null) {
+            try (PreparedStatement ps = conexion.prepareStatement("UPDATE users SET is_admin = 1 WHERE id = ?")) {
+                ps.setInt(1, userId);
+                ps.executeUpdate();
+            }
+            return;
+        }
+
+        try (PreparedStatement ps = conexion.prepareStatement("""
+                INSERT INTO users (username, email, password_hash, is_admin)
+                VALUES (?, ?, ?, 1)
+                """)) {
+            ps.setString(1, username);
+            ps.setString(2, email);
+            ps.setString(3, PasswordUtil.hashPassword(password));
+            ps.executeUpdate();
+        }
+    }
+
+    private boolean existeAdmin(Connection conexion) throws Exception {
+        try (PreparedStatement ps = conexion.prepareStatement("SELECT 1 FROM users WHERE is_admin = 1 LIMIT 1");
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next();
+        }
+    }
+
+    private Integer buscarUsuarioPorCampo(Connection conexion, String campo, String valor) throws Exception {
+        String sql = "SELECT id FROM users WHERE " + campo + " = ? LIMIT 1";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, valor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        }
+        return null;
+    }
+
+    private String obtenerEnv(String clave, String valorPorDefecto) {
+        String valor = System.getenv(clave);
+        return valor == null || valor.isBlank() ? valorPorDefecto : valor.trim();
     }
 }

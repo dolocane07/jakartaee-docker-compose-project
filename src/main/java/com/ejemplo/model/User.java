@@ -5,6 +5,7 @@ public class User {
     private String username;
     private String email;
     private String passwordHash;
+    private boolean admin;
 
     public int getId() {
         return id;
@@ -36,5 +37,13 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 }
