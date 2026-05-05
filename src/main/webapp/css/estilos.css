@@ -449,6 +449,11 @@ body::before {
     color: #ffd8e5;
 }
 
+.danger-button--small {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+}
+
 .boton-principal:hover,
 .boton-secundario:hover,
 .boton-ghost:hover,
@@ -672,6 +677,79 @@ body::before {
     gap: 18px;
 }
 
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-card {
+    padding: 20px;
+    border-radius: 22px;
+    background: rgba(24, 23, 38, 0.62);
+    border: 1px solid rgba(144, 140, 170, 0.18);
+}
+
+.admin-card h3 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.8rem;
+    margin-bottom: 14px;
+}
+
+.admin-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(42, 39, 63, 0.72);
+    border: 1px solid rgba(144, 140, 170, 0.16);
+}
+
+.admin-row__title {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.admin-row__meta {
+    color: var(--subtle);
+    margin-top: 4px;
+    line-height: 1.45;
+}
+
+.admin-row__aside {
+    display: grid;
+    justify-items: end;
+    color: var(--subtle);
+    font-size: 0.88rem;
+}
+
+.admin-row__aside strong {
+    color: var(--foam);
+    font-size: 1.1rem;
+}
+
+.admin-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(62, 143, 176, 0.18);
+    border: 1px solid rgba(156, 207, 216, 0.22);
+    color: var(--foam);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
 .stats-grid,
 .stats-lists {
     display: grid;
@@ -776,6 +854,7 @@ body::before {
     .hero,
     .hero-highlights,
     .auth-grid,
+    .admin-grid,
     .grid-form,
     .fanfic-quick-grid,
     .edit-form__fields,
