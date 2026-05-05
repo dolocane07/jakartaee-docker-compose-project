@@ -2,11 +2,20 @@ package com.ejemplo.service;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
 
 import org.jsoup.Jsoup;
 import org.jsoup.HttpStatusException;
@@ -106,6 +115,19 @@ public class Ao3ScraperService {
     }
 
     private Document obtenerDocumento(String url) throws IOException {
+        try {
+            return obtenerDocumentoConJsoup(url);
+        } catch (SSLHandshakeException e) {
+            return obtenerDocumentoConHttpClient(url, e);
+        } catch (IOException e) {
+            if (contieneHandshakeFailure(e)) {
+                return obtenerDocumentoConHttpClient(url, e);
+            }
+            throw e;
+        }
+    }
+
+    private Document obtenerDocumentoConJsoup(String url) throws IOException {
         Response response = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
                 .header("Accept-Language", "es-ES,es;q=0.9,en;q=0.8")
@@ -115,6 +137,51 @@ public class Ao3ScraperService {
                 .execute();
 
         return response.parse();
+    }
+
+    private Document obtenerDocumentoConHttpClient(String url, Exception causaOriginal) throws IOException {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, null, new SecureRandom());
+
+            SSLParameters sslParameters = new SSLParameters();
+            sslParameters.setProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
+
+            HttpClient client = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .connectTimeout(Duration.ofSeconds(20))
+                    .sslContext(sslContext)
+                    .sslParameters(sslParameters)
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(20))
+                    .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
+                    .header("Accept-Language", "es-ES,es;q=0.9,en;q=0.8")
+                    .header("Referer", "https://archiveofourown.org/")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 400) {
+                throw new HttpStatusException("HTTP error fetching URL", response.statusCode(), url);
+            }
+
+            return Jsoup.parse(response.body(), url);
+        } catch (HttpStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            IOException io = new IOException("No se pudo acceder a AO3 tras el fallback TLS: " + e.getMessage(), e);
+            io.addSuppressed(causaOriginal);
+            throw io;
+        }
+    }
+
+    private boolean contieneHandshakeFailure(IOException e) {
+        String mensaje = e.getMessage();
+        return mensaje != null && mensaje.toLowerCase().contains("handshake_failure");
     }
 
     private boolean paginaPareceWork(Document documento) {

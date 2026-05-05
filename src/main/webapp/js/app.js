@@ -2,7 +2,9 @@ const state = {
     user: null,
     fanfics: [],
     currentPage: 1,
-    fanficsPerPage: 5
+    fanficsPerPage: 5,
+    adminFanfics: [],
+    selectedAdminUserId: null
 };
 
 const formFanfic = document.getElementById('formFanfic');
@@ -17,6 +19,7 @@ const contadorFanfics = document.getElementById('contadorFanfics');
 const adminSection = document.getElementById('adminSection');
 const adminUsers = document.getElementById('adminUsers');
 const adminFanfics = document.getElementById('adminFanfics');
+const adminFanficsTitle = document.getElementById('adminFanficsTitle');
 const adminEstado = document.getElementById('adminEstado');
 const authStatus = document.getElementById('authStatus');
 const authSection = document.getElementById('authSection');
@@ -32,6 +35,7 @@ formFanfic.addEventListener('submit', guardarFanfic);
 listaFanfics.addEventListener('click', manejarClicksBiblioteca);
 listaFanfics.addEventListener('submit', manejarEdicionFanfic);
 paginacionFanfics.addEventListener('click', manejarPaginacionBiblioteca);
+adminUsers.addEventListener('click', manejarClickUsuariosAdmin);
 adminFanfics.addEventListener('click', manejarClicksAdmin);
 authStatus.addEventListener('click', manejarAccionesSesion);
 
@@ -279,6 +283,17 @@ function manejarClicksAdmin(evento) {
     borrarFanficComoAdmin(Number(deleteButton.dataset.fanficId));
 }
 
+function manejarClickUsuariosAdmin(evento) {
+    const userButton = evento.target.closest('[data-action="select-admin-user"]');
+    if (!userButton) {
+        return;
+    }
+
+    state.selectedAdminUserId = Number(userButton.dataset.userId);
+    renderAdminUsers(state.adminUsersData || []);
+    renderAdminFanficsFiltrados();
+}
+
 async function manejarEdicionFanfic(evento) {
     const form = evento.target.closest('.edit-form');
     if (!form) {
@@ -341,7 +356,8 @@ async function cargarPanelAdmin() {
     adminSection.classList.remove('hidden');
     adminEstado.textContent = '';
     adminUsers.innerHTML = '<div class="mensaje neutro">Cargando usuarios...</div>';
-    adminFanfics.innerHTML = '<div class="mensaje neutro">Cargando entradas...</div>';
+    adminFanfics.innerHTML = '<div class="mensaje neutro">Selecciona un usuario para ver sus entradas.</div>';
+    adminFanficsTitle.textContent = 'Entradas del usuario';
 
     try {
         const [usersResult, fanficsResult] = await Promise.all([
@@ -357,12 +373,20 @@ async function cargarPanelAdmin() {
             throw new Error(fanficsResult.data.detalle || fanficsResult.data.mensaje || 'No se pudieron cargar las entradas');
         }
 
-        adminUsers.innerHTML = renderAdminUsers(usersResult.data.users);
-        adminFanfics.innerHTML = renderAdminFanfics(fanficsResult.data.fanfics);
+        state.adminUsersData = usersResult.data.users;
+        state.adminFanfics = fanficsResult.data.fanfics;
+
+        if (!state.selectedAdminUserId && state.adminUsersData.length > 0) {
+            state.selectedAdminUserId = Number(state.adminUsersData[0].id);
+        }
+
+        adminUsers.innerHTML = renderAdminUsers(state.adminUsersData);
+        renderAdminFanficsFiltrados();
     } catch (error) {
         adminEstado.textContent = error.message;
         adminUsers.innerHTML = '<div class="mensaje error">No se pudieron cargar los usuarios</div>';
         adminFanfics.innerHTML = '<div class="mensaje error">No se pudieron cargar las entradas</div>';
+        adminFanficsTitle.textContent = 'Entradas del usuario';
     }
 }
 
@@ -410,6 +434,9 @@ function actualizarSesion(user) {
     } else {
         state.fanfics = [];
         state.currentPage = 1;
+        state.adminFanfics = [];
+        state.adminUsersData = [];
+        state.selectedAdminUserId = null;
         authStatus.innerHTML = `
             <div class="session-pill">
                 <span class="session-pill__label">Estado</span>
@@ -421,6 +448,7 @@ function actualizarSesion(user) {
         stats.innerHTML = '';
         adminUsers.innerHTML = '';
         adminFanfics.innerHTML = '';
+        adminFanficsTitle.textContent = 'Entradas del usuario';
         adminEstado.textContent = '';
         contadorFanfics.textContent = '';
     }
@@ -522,7 +550,12 @@ function renderAdminUsers(users) {
     }
 
     return users.map(user => `
-        <article class="admin-row">
+        <button
+            class="admin-row admin-row--button${Number(user.id) === state.selectedAdminUserId ? ' is-active' : ''}"
+            type="button"
+            data-action="select-admin-user"
+            data-user-id="${user.id}"
+        >
             <div>
                 <p class="admin-row__title">${escapeHtml(user.username)}${user.isAdmin ? ' <span class="admin-badge">Admin</span>' : ''}</p>
                 <p class="admin-row__meta">${escapeHtml(user.email)}</p>
@@ -531,13 +564,13 @@ function renderAdminUsers(users) {
                 <strong>${user.fanficCount}</strong>
                 <span>fanfics</span>
             </div>
-        </article>
+        </button>
     `).join('');
 }
 
 function renderAdminFanfics(fanfics) {
     if (!fanfics || fanfics.length === 0) {
-        return '<div class="mensaje neutro">No hay entradas registradas.</div>';
+        return '<div class="mensaje neutro">Ese usuario no tiene entradas registradas.</div>';
     }
 
     return fanfics.map(fanfic => `
@@ -554,6 +587,25 @@ function renderAdminFanfics(fanfics) {
             >Borrar</button>
         </article>
     `).join('');
+}
+
+function renderAdminFanficsFiltrados() {
+    const users = state.adminUsersData || [];
+    const selectedUser = users.find(user => Number(user.id) === state.selectedAdminUserId);
+
+    if (!selectedUser) {
+        adminFanficsTitle.textContent = 'Entradas del usuario';
+        adminFanfics.innerHTML = '<div class="mensaje neutro">Selecciona un usuario para ver sus entradas.</div>';
+        return;
+    }
+
+    adminFanficsTitle.textContent = `Entradas de ${selectedUser.username}`;
+
+    const fanficsFiltrados = state.adminFanfics.filter(
+        fanfic => Number(fanfic.ownerUserId) === Number(state.selectedAdminUserId)
+    );
+
+    adminFanfics.innerHTML = renderAdminFanfics(fanficsFiltrados);
 }
 
 function renderStarOptions(actual) {

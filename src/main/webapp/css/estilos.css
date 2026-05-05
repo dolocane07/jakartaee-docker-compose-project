@@ -714,6 +714,27 @@ body::before {
     border: 1px solid rgba(144, 140, 170, 0.16);
 }
 
+.admin-row--button {
+    width: 100%;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-row--button:hover {
+    transform: translateY(-1px);
+    background: rgba(57, 53, 82, 0.86);
+    border-color: rgba(156, 207, 216, 0.22);
+}
+
+.admin-row--button.is-active {
+    background: rgba(62, 143, 176, 0.16);
+    border-color: rgba(156, 207, 216, 0.32);
+    box-shadow: 0 0 0 1px rgba(156, 207, 216, 0.12) inset;
+}
+
 .admin-row__title {
     color: var(--text);
     font-weight: 700;
