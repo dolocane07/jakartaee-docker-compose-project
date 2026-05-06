@@ -39,6 +39,12 @@ public class EstadisticasServlet extends HttpServlet {
             return;
         }
 
+        if (SessionUtil.isAdmin(request)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write(gson.toJson(crearError("La cuenta admin solo puede usar el panel de administracion")));
+            return;
+        }
+
         try {
             schemaInitializer.ensureSchema();
 

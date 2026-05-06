@@ -720,6 +720,24 @@ body::before {
     margin-bottom: 14px;
 }
 
+.admin-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.admin-card__header h3 {
+    margin-bottom: 0;
+}
+
+.admin-card__actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .admin-list {
     display: grid;
     gap: 12px;

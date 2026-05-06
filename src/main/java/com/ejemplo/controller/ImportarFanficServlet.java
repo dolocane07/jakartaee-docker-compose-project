@@ -42,6 +42,12 @@ public class ImportarFanficServlet extends HttpServlet {
             return;
         }
 
+        if (SessionUtil.isAdmin(request)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write(gson.toJson(crearError("La cuenta admin no puede importar fanfics")));
+            return;
+        }
+
         try {
             schemaInitializer.ensureSchema();
 

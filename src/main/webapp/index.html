@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/estilos.css?v=14">
-    <script src="/js/app.js?v=12" defer></script>
+    <link rel="stylesheet" href="/css/estilos.css?v=15">
+    <script src="/js/app.js?v=13" defer></script>
 </head>
 <body>
     <div class="page-glow page-glow--left"></div>
@@ -228,7 +228,7 @@
                         <p class="section-label">Admin</p>
                         <h2>Panel de administracion</h2>
                     </div>
-                    <p class="contador">Ver usuarios creados y borrar entradas</p>
+                    <p class="contador">Selecciona una cuenta para borrar sus fanfics o eliminarla</p>
                 </div>
 
                 <div class="admin-grid">
@@ -238,7 +238,10 @@
                     </article>
 
                     <article class="admin-card">
-                        <h3 id="adminFanficsTitle">Entradas del usuario</h3>
+                        <div class="admin-card__header">
+                            <h3 id="adminFanficsTitle">Entradas del usuario</h3>
+                            <div id="adminSelectedActions" class="admin-card__actions"></div>
+                        </div>
                         <div id="adminFanfics" class="admin-list"></div>
                     </article>
                 </div>

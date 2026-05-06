@@ -142,6 +142,64 @@ public class UserDAO {
         return usuarios;
     }
 
+    public void eliminarCuentaComoAdmin(int userId, int adminUserId) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Debes seleccionar una cuenta valida");
+        }
+
+        if (userId == adminUserId) {
+            throw new IllegalArgumentException("El admin no puede borrar su propia cuenta");
+        }
+
+        String validarSql = "SELECT is_admin FROM users WHERE id = ? LIMIT 1";
+        String deleteFanficsSql = "DELETE FROM fanfics WHERE user_id = ?";
+        String deleteUserSql = "DELETE FROM users WHERE id = ?";
+
+        Connection conexion = null;
+
+        try {
+            conexion = ConexionBD.getConnection();
+            conexion.setAutoCommit(false);
+
+            try (PreparedStatement validar = conexion.prepareStatement(validarSql)) {
+                validar.setInt(1, userId);
+
+                try (ResultSet rs = validar.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new IllegalArgumentException("No se encontro la cuenta seleccionada");
+                    }
+
+                    if (rs.getBoolean("is_admin")) {
+                        throw new IllegalArgumentException("No se pueden borrar cuentas admin");
+                    }
+                }
+            }
+
+            try (PreparedStatement deleteFanfics = conexion.prepareStatement(deleteFanficsSql)) {
+                deleteFanfics.setInt(1, userId);
+                deleteFanfics.executeUpdate();
+            }
+
+            try (PreparedStatement deleteUser = conexion.prepareStatement(deleteUserSql)) {
+                deleteUser.setInt(1, userId);
+
+                if (deleteUser.executeUpdate() == 0) {
+                    throw new IllegalArgumentException("No se encontro la cuenta seleccionada");
+                }
+            }
+
+            conexion.commit();
+        } catch (IllegalArgumentException e) {
+            rollbackSilencioso(conexion);
+            throw e;
+        } catch (Exception e) {
+            rollbackSilencioso(conexion);
+            throw new RuntimeException("No se pudo borrar la cuenta: " + ErrorUtil.getRootCauseMessage(e), e);
+        } finally {
+            cerrarSilencioso(conexion);
+        }
+    }
+
     private boolean existePorCampo(String campo, String valor) {
         String sql = "SELECT 1 FROM users WHERE " + campo + " = ? LIMIT 1";
 
@@ -166,5 +224,23 @@ public class UserDAO {
         user.setPasswordHash(rs.getString("password_hash"));
         user.setAdmin(rs.getBoolean("is_admin"));
         return user;
+    }
+
+    private void rollbackSilencioso(Connection conexion) {
+        if (conexion != null) {
+            try {
+                conexion.rollback();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void cerrarSilencioso(Connection conexion) {
+        if (conexion != null) {
+            try {
+                conexion.close();
+            } catch (Exception ignored) {
+            }
+        }
     }
 }

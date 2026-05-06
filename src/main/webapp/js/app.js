@@ -4,6 +4,7 @@ const state = {
     currentPage: 1,
     fanficsPerPage: 5,
     adminFanfics: [],
+    adminUsersData: [],
     selectedAdminUserId: null
 };
 
@@ -22,12 +23,16 @@ const adminSection = document.getElementById('adminSection');
 const adminUsers = document.getElementById('adminUsers');
 const adminFanfics = document.getElementById('adminFanfics');
 const adminFanficsTitle = document.getElementById('adminFanficsTitle');
+const adminSelectedActions = document.getElementById('adminSelectedActions');
 const adminEstado = document.getElementById('adminEstado');
 const authStatus = document.getElementById('authStatus');
 const authSection = document.getElementById('authSection');
 const appSection = document.getElementById('appSection');
 const heroSection = document.getElementById('heroSection');
 const authEstado = document.getElementById('authEstado');
+const importSection = document.getElementById('importar');
+const bibliotecaSection = document.getElementById('biblioteca');
+const estadisticasSection = document.getElementById('estadisticas');
 const registerForm = document.getElementById('registerForm');
 const loginForm = document.getElementById('loginForm');
 
@@ -214,11 +219,12 @@ async function guardarFanficManual(evento) {
 }
 
 async function cargarBibliotecaCompleta() {
-    await Promise.all([cargarFanfics(), cargarEstadisticas()]);
-
     if (state.user?.isAdmin) {
         await cargarPanelAdmin();
+        return;
     }
+
+    await Promise.all([cargarFanfics(), cargarEstadisticas()]);
 }
 
 async function cargarFanfics() {
@@ -335,6 +341,12 @@ function mostrarModoManual() {
 }
 
 function manejarClicksAdmin(evento) {
+    const deleteUserButton = evento.target.closest('[data-action="admin-delete-user"]');
+    if (deleteUserButton) {
+        borrarUsuarioComoAdmin(Number(deleteUserButton.dataset.userId));
+        return;
+    }
+
     const deleteButton = evento.target.closest('[data-action="admin-delete-fanfic"]');
     if (!deleteButton) {
         return;
@@ -418,6 +430,7 @@ async function cargarPanelAdmin() {
     adminUsers.innerHTML = '<div class="mensaje neutro">Cargando usuarios...</div>';
     adminFanfics.innerHTML = '<div class="mensaje neutro">Selecciona un usuario para ver sus entradas.</div>';
     adminFanficsTitle.textContent = 'Entradas del usuario';
+    adminSelectedActions.innerHTML = '';
 
     try {
         const [usersResult, fanficsResult] = await Promise.all([
@@ -436,8 +449,12 @@ async function cargarPanelAdmin() {
         state.adminUsersData = usersResult.data.users;
         state.adminFanfics = fanficsResult.data.fanfics;
 
-        if (!state.selectedAdminUserId && state.adminUsersData.length > 0) {
-            state.selectedAdminUserId = Number(state.adminUsersData[0].id);
+        const usuariosNoAdmin = state.adminUsersData.filter(user => !user.isAdmin);
+
+        if (usuariosNoAdmin.length === 0) {
+            state.selectedAdminUserId = null;
+        } else if (!usuariosNoAdmin.some(user => Number(user.id) === state.selectedAdminUserId)) {
+            state.selectedAdminUserId = Number(usuariosNoAdmin[0].id);
         }
 
         adminUsers.innerHTML = renderAdminUsers(state.adminUsersData);
@@ -469,7 +486,39 @@ async function borrarFanficComoAdmin(fanficId) {
         }
 
         adminEstado.textContent = 'Entrada borrada desde el panel admin.';
-        await Promise.all([cargarFanfics(), cargarEstadisticas(), cargarPanelAdmin()]);
+        await cargarPanelAdmin();
+    } catch (error) {
+        adminEstado.textContent = error.message;
+    }
+}
+
+async function borrarUsuarioComoAdmin(userId) {
+    const user = (state.adminUsersData || []).find(item => Number(item.id) === Number(userId));
+    if (!user) {
+        adminEstado.textContent = 'No se encontro la cuenta seleccionada.';
+        return;
+    }
+
+    if (!confirm(`¿Seguro que quieres borrar la cuenta ${user.username} y todos sus fanfics?`)) {
+        return;
+    }
+
+    try {
+        const { response, data } = await solicitar('/api/admin/users/eliminar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId })
+        });
+
+        if (!response.ok || !data.ok) {
+            throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la cuenta');
+        }
+
+        state.selectedAdminUserId = null;
+        adminEstado.textContent = 'Cuenta borrada desde el panel admin.';
+        await cargarPanelAdmin();
     } catch (error) {
         adminEstado.textContent = error.message;
     }
@@ -481,6 +530,9 @@ function actualizarSesion(user) {
     authSection.classList.toggle('hidden', Boolean(user));
     heroSection.classList.toggle('hidden', Boolean(user));
     adminSection.classList.toggle('hidden', !user || !user.isAdmin);
+    importSection.classList.toggle('hidden', !user || user.isAdmin);
+    bibliotecaSection.classList.toggle('hidden', !user || user.isAdmin);
+    estadisticasSection.classList.toggle('hidden', !user || user.isAdmin);
 
     if (user) {
         authStatus.innerHTML = `
@@ -509,6 +561,7 @@ function actualizarSesion(user) {
         adminUsers.innerHTML = '';
         adminFanfics.innerHTML = '';
         adminFanficsTitle.textContent = 'Entradas del usuario';
+        adminSelectedActions.innerHTML = '';
         adminEstado.textContent = '';
         contadorFanfics.textContent = '';
     }
@@ -609,7 +662,13 @@ function renderAdminUsers(users) {
         return '<div class="mensaje neutro">No hay usuarios creados todavia.</div>';
     }
 
-    return users.map(user => `
+    const usuariosNormales = users.filter(user => !user.isAdmin);
+
+    if (usuariosNormales.length === 0) {
+        return '<div class="mensaje neutro">No hay cuentas normales creadas todavia.</div>';
+    }
+
+    return usuariosNormales.map(user => `
         <button
             class="admin-row admin-row--button${Number(user.id) === state.selectedAdminUserId ? ' is-active' : ''}"
             type="button"
@@ -617,7 +676,7 @@ function renderAdminUsers(users) {
             data-user-id="${user.id}"
         >
             <div>
-                <p class="admin-row__title">${escapeHtml(user.username)}${user.isAdmin ? ' <span class="admin-badge">Admin</span>' : ''}</p>
+                <p class="admin-row__title">${escapeHtml(user.username)}</p>
                 <p class="admin-row__meta">${escapeHtml(user.email)}</p>
             </div>
             <div class="admin-row__aside">
@@ -655,11 +714,20 @@ function renderAdminFanficsFiltrados() {
 
     if (!selectedUser) {
         adminFanficsTitle.textContent = 'Entradas del usuario';
+        adminSelectedActions.innerHTML = '';
         adminFanfics.innerHTML = '<div class="mensaje neutro">Selecciona un usuario para ver sus entradas.</div>';
         return;
     }
 
     adminFanficsTitle.textContent = `Entradas de ${selectedUser.username}`;
+    adminSelectedActions.innerHTML = `
+        <button
+            class="danger-button danger-button--small"
+            type="button"
+            data-action="admin-delete-user"
+            data-user-id="${selectedUser.id}"
+        >Borrar cuenta</button>
+    `;
 
     const fanficsFiltrados = state.adminFanfics.filter(
         fanfic => Number(fanfic.ownerUserId) === Number(state.selectedAdminUserId)

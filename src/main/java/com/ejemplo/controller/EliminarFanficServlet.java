@@ -38,6 +38,12 @@ public class EliminarFanficServlet extends HttpServlet {
             return;
         }
 
+        if (SessionUtil.isAdmin(request)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write(gson.toJson(crearError("La cuenta admin no puede borrar desde una biblioteca propia")));
+            return;
+        }
+
         try {
             schemaInitializer.ensureSchema();
 

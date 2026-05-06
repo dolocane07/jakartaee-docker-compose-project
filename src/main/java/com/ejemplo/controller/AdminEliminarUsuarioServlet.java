@@ -3,11 +3,10 @@ package com.ejemplo.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ejemplo.model.FanficDAO;
+import com.ejemplo.model.UserDAO;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
 import com.ejemplo.util.SessionUtil;
@@ -19,11 +18,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/api/fanfics/actualizar")
-public class ActualizarFanficServlet extends HttpServlet {
+@WebServlet("/api/admin/users/eliminar")
+public class AdminEliminarUsuarioServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final FanficDAO fanficDAO = new FanficDAO();
+    private final UserDAO userDAO = new UserDAO();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -32,16 +31,16 @@ public class ActualizarFanficServlet extends HttpServlet {
         request.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType("application/json;charset=UTF-8");
 
-        Integer userId = SessionUtil.getUserId(request);
-        if (userId == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(gson.toJson(crearError("Necesitas iniciar sesion para editar entradas")));
+        if (!SessionUtil.isAdmin(request)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write(gson.toJson(crearError("Solo el admin puede borrar cuentas")));
             return;
         }
 
-        if (SessionUtil.isAdmin(request)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write(gson.toJson(crearError("La cuenta admin no puede editar una biblioteca propia")));
+        Integer adminUserId = SessionUtil.getUserId(request);
+        if (adminUserId == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(gson.toJson(crearError("Necesitas iniciar sesion como admin")));
             return;
         }
 
@@ -49,27 +48,20 @@ public class ActualizarFanficServlet extends HttpServlet {
             schemaInitializer.ensureSchema();
 
             Map<String, Object> datos = leerJson(request);
-            int fanficId = obtenerEntero(datos, "fanficId");
-            String finishedDate = obtenerTexto(datos, "finishedDate");
-            int userStars = obtenerEntero(datos, "userStars");
+            int userId = obtenerEntero(datos, "userId");
 
-            LocalDate.parse(finishedDate);
-            if (userStars < 1 || userStars > 5) {
-                throw new IllegalArgumentException("Las estrellas deben estar entre 1 y 5");
-            }
-
-            fanficDAO.actualizarLectura(userId, fanficId, finishedDate, userStars);
+            userDAO.eliminarCuentaComoAdmin(userId, adminUserId);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
-            respuesta.put("mensaje", "Entrada actualizada");
+            respuesta.put("mensaje", "Cuenta borrada por admin");
             response.getWriter().write(gson.toJson(respuesta));
         } catch (IllegalArgumentException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write(gson.toJson(crearError(e.getMessage())));
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            Map<String, Object> error = crearError("No se pudo actualizar la entrada");
+            Map<String, Object> error = crearError("No se pudo borrar la cuenta");
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
             response.getWriter().write(gson.toJson(error));
         }
@@ -85,13 +77,6 @@ public class ActualizarFanficServlet extends HttpServlet {
         }
 
         return gson.fromJson(json.toString(), Map.class);
-    }
-
-    private String obtenerTexto(Map<String, Object> datos, String clave) {
-        if (datos == null || datos.get(clave) == null) {
-            return "";
-        }
-        return String.valueOf(datos.get(clave)).trim();
     }
 
     private int obtenerEntero(Map<String, Object> datos, String clave) {
