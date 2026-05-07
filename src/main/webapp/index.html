@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/estilos.css?v=15">
-    <script src="/js/app.js?v=13" defer></script>
+    <link rel="stylesheet" href="/css/estilos.css?v=16">
+    <script src="/js/app.js?v=14" defer></script>
 </head>
 <body>
     <div class="page-glow page-glow--left"></div>
@@ -108,7 +108,7 @@
                 </article>
             </div>
 
-            <div id="authEstado" class="estado estado--auth"></div>
+                <div id="authEstado" class="estado estado--auth" role="status" aria-live="polite" aria-atomic="true"></div>
         </section>
 
         <div id="appSection" class="app-section hidden">
@@ -146,10 +146,10 @@
                     <button class="boton-principal" type="submit">Guardar fanfic</button>
                 </form>
 
-                <div id="estado" class="estado"></div>
+                <div id="estado" class="estado" role="status" aria-live="polite" aria-atomic="true"></div>
 
                 <div class="manual-import">
-                    <button id="toggleManualImport" class="boton-ghost" type="button">Usar modo manual</button>
+                    <button id="toggleManualImport" class="boton-ghost" type="button" aria-expanded="false">Usar modo manual</button>
 
                     <form id="manualForm" class="manual-form hidden">
                         <div class="manual-form__grid">
@@ -246,7 +246,7 @@
                     </article>
                 </div>
 
-                <div id="adminEstado" class="estado"></div>
+                <div id="adminEstado" class="estado" role="status" aria-live="polite" aria-atomic="true"></div>
             </section>
         </div>
     </main>

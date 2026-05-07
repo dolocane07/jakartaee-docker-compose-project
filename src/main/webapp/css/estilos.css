@@ -17,7 +17,7 @@
     --pine: #3e8fb0;
     --foam: #9ccfd8;
     --iris: #c4a7e7;
-    --shadow: 0 18px 60px rgba(10, 8, 18, 0.38);
+    --shadow: 0 1.125rem 3.75rem rgba(10, 8, 18, 0.38);
 }
 
 html {
@@ -43,9 +43,9 @@ body::before {
     position: fixed;
     inset: 0;
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 28px 28px;
+        linear-gradient(rgba(255, 255, 255, 0.02) 0.0625rem, transparent 0.0625rem),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0.0625rem, transparent 0.0625rem);
+    background-size: 1.75rem 1.75rem;
     opacity: 0.22;
     pointer-events: none;
 }
@@ -58,8 +58,8 @@ body::before {
     position: fixed;
     width: 36rem;
     height: 36rem;
-    border-radius: 999px;
-    filter: blur(80px);
+    border-radius: 999rem;
+    filter: blur(5rem);
     pointer-events: none;
     opacity: 0.25;
 }
@@ -77,22 +77,22 @@ body::before {
 }
 
 .layout {
-    width: min(1180px, calc(100% - 32px));
+    width: min(73.75rem, calc(100% - 2rem));
     margin: 0 auto;
-    padding: 28px 0 56px;
+    padding: 1.75rem 0 3.5rem;
     display: grid;
-    gap: 22px;
+    gap: 1.375rem;
     position: relative;
     z-index: 1;
 }
 
 .shell {
-    border: 1px solid rgba(144, 140, 170, 0.18);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.18);
     box-shadow: var(--shadow);
     background:
         linear-gradient(180deg, rgba(49, 46, 73, 0.95), rgba(35, 33, 54, 0.95)),
         rgba(35, 33, 54, 0.95);
-    border-radius: 28px;
+    border-radius: 1.75rem;
     position: relative;
     overflow: hidden;
 }
@@ -109,32 +109,32 @@ body::before {
 
 .topbar {
     background: rgba(24, 23, 38, 0.88);
-    border-radius: 22px;
-    padding: 14px 20px;
+    border-radius: 1.375rem;
+    padding: 0.875rem 1.25rem;
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 18px;
+    gap: 1.125rem;
     position: sticky;
-    top: 14px;
+    top: 0.875rem;
     z-index: 10;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(0.75rem);
 }
 
 .topbar__brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
     position: relative;
     z-index: 1;
 }
 
 .topbar__dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 999px;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 999rem;
     background: linear-gradient(135deg, var(--iris), var(--foam));
-    box-shadow: 0 0 0 8px rgba(196, 167, 231, 0.12);
+    box-shadow: 0 0 0 0.5rem rgba(196, 167, 231, 0.12);
 }
 
 .topbar__sub {
@@ -144,7 +144,7 @@ body::before {
 
 .topbar__session {
     display: flex;
-    gap: 10px;
+    gap: 0.625rem;
     align-items: center;
     justify-content: flex-end;
     position: relative;
@@ -153,11 +153,11 @@ body::before {
 
 .session-pill {
     display: grid;
-    gap: 2px;
-    padding: 10px 14px;
-    border-radius: 18px;
+    gap: 0.125rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 1.125rem;
     background: rgba(57, 53, 82, 0.55);
-    border: 1px solid rgba(144, 140, 170, 0.16);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.16);
 }
 
 .session-pill__label {
@@ -183,7 +183,7 @@ body::before {
 
 .archive-banner__meta {
     display: grid;
-    gap: 4px;
+    gap: 0.25rem;
 }
 
 .eyebrow,
@@ -205,19 +205,19 @@ body::before {
 .hero,
 .panel,
 .auth-shell {
-    padding: 28px;
+    padding: 1.75rem;
 }
 
 .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.9fr);
-    gap: 22px;
+    grid-template-columns: minmax(0, 1.8fr) minmax(16.25rem, 0.9fr);
+    gap: 1.375rem;
     align-items: stretch;
 }
 
 .section-label {
     color: var(--foam);
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
 }
 
 .hero h1,
@@ -237,7 +237,7 @@ body::before {
     max-width: 13ch;
     font-size: clamp(2.9rem, 6vw, 5rem);
     line-height: 0.92;
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
 }
 
 .intro,
@@ -248,10 +248,10 @@ body::before {
 }
 
 .hero-highlights {
-    margin-top: 20px;
+    margin-top: 1.25rem;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .highlight-card,
@@ -260,10 +260,10 @@ body::before {
 .ranking-card,
 .mensaje,
 .empty-card {
-    padding: 18px;
-    border-radius: 22px;
+    padding: 1.125rem;
+    border-radius: 1.375rem;
     background: rgba(24, 23, 38, 0.62);
-    border: 1px solid rgba(144, 140, 170, 0.18);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.18);
 }
 
 .highlight-card__label,
@@ -274,7 +274,7 @@ body::before {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-size: 0.76rem;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 
 .highlight-card__text,
@@ -286,26 +286,26 @@ body::before {
 .hero-note {
     align-self: start;
     background: rgba(24, 23, 38, 0.72);
-    border: 1px solid rgba(144, 140, 170, 0.18);
-    border-radius: 22px;
-    padding: 18px 18px 18px 20px;
+    border: 0.0625rem solid rgba(144, 140, 170, 0.18);
+    border-radius: 1.375rem;
+    padding: 1.125rem 1.125rem 1.125rem 1.25rem;
 }
 
 .hero-note__title {
     color: var(--foam);
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
 }
 
 .hero-note ul {
     list-style: none;
     display: grid;
-    gap: 10px;
+    gap: 0.625rem;
 }
 
 .hero-note li {
     color: var(--subtle);
-    padding-left: 16px;
+    padding-left: 1rem;
     position: relative;
     line-height: 1.5;
 }
@@ -315,11 +315,11 @@ body::before {
     position: absolute;
     left: 0;
     top: 0.65em;
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 999rem;
     background: var(--iris);
-    box-shadow: 0 0 0 5px rgba(196, 167, 231, 0.14);
+    box-shadow: 0 0 0 0.3125rem rgba(196, 167, 231, 0.14);
 }
 
 .auth-shell__heading,
@@ -327,9 +327,9 @@ body::before {
 .cabecera-seccion {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    gap: 1rem;
     align-items: end;
-    margin-bottom: 18px;
+    margin-bottom: 1.125rem;
 }
 
 .panel h2,
@@ -340,25 +340,25 @@ body::before {
 .auth-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 1rem;
     position: relative;
     z-index: 1;
 }
 
 .auth-card h3 {
     font-size: 1.8rem;
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
 }
 
 .auth-form,
 .edit-form {
     display: grid;
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .campo {
     display: grid;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .campo span {
@@ -369,40 +369,40 @@ body::before {
 .grid-form {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr auto;
-    gap: 14px;
+    gap: 0.875rem;
     align-items: end;
     position: relative;
     z-index: 1;
 }
 
 .manual-import {
-    margin-top: 18px;
+    margin-top: 1.125rem;
     position: relative;
     z-index: 1;
 }
 
 .manual-form {
-    margin-top: 16px;
-    padding: 18px;
-    border-radius: 22px;
+    margin-top: 1rem;
+    padding: 1.125rem;
+    border-radius: 1.375rem;
     background: rgba(24, 23, 38, 0.58);
-    border: 1px solid rgba(144, 140, 170, 0.16);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.16);
     display: grid;
-    gap: 16px;
+    gap: 1rem;
 }
 
 .manual-form__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .campo input,
 .campo select {
     width: 100%;
-    border: 1px solid rgba(144, 140, 170, 0.22);
-    border-radius: 16px;
-    padding: 14px 16px;
+    border: 0.0625rem solid rgba(144, 140, 170, 0.22);
+    border-radius: 1rem;
+    padding: 0.875rem 1rem;
     background: rgba(24, 23, 38, 0.88);
     color: var(--text);
     font-size: 0.98rem;
@@ -418,16 +418,24 @@ body::before {
 .campo input:focus,
 .campo select:focus {
     border-color: rgba(196, 167, 231, 0.55);
-    box-shadow: 0 0 0 4px rgba(196, 167, 231, 0.12);
-    transform: translateY(-1px);
+    box-shadow: 0 0 0 0.25rem rgba(196, 167, 231, 0.12);
+    transform: translateY(-0.0625rem);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 0.125rem solid rgba(156, 207, 216, 0.82);
+    outline-offset: 0.1875rem;
 }
 
 .boton-principal,
 .boton-secundario,
 .boton-ghost,
 .danger-button {
-    border-radius: 16px;
-    padding: 14px 20px;
+    border-radius: 1rem;
+    padding: 0.875rem 1.25rem;
     font-size: 0.98rem;
     font-weight: 700;
     cursor: pointer;
@@ -437,27 +445,27 @@ body::before {
 .boton-principal,
 .boton-secundario,
 .boton-ghost {
-    border: 1px solid rgba(156, 207, 216, 0.28);
+    border: 0.0625rem solid rgba(156, 207, 216, 0.28);
     background: rgba(62, 143, 176, 0.18);
     color: var(--foam);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 0.0625rem 0 rgba(255, 255, 255, 0.04);
 }
 
 .boton-principal {
-    min-height: 50px;
+    min-height: 3.125rem;
 }
 
 .boton-ghost--small {
-    padding: 10px 14px;
+    padding: 0.625rem 0.875rem;
     font-size: 0.9rem;
-    border-radius: 14px;
+    border-radius: 0.875rem;
 }
 
 .boton-ghost--icon {
-    width: 38px;
-    height: 38px;
+    width: 2.375rem;
+    height: 2.375rem;
     padding: 0;
-    border-radius: 999px;
+    border-radius: 999rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -466,13 +474,13 @@ body::before {
 }
 
 .danger-button {
-    border: 1px solid rgba(235, 111, 146, 0.3);
+    border: 0.0625rem solid rgba(235, 111, 146, 0.3);
     background: rgba(104, 41, 67, 0.44);
     color: #ffd8e5;
 }
 
 .danger-button--small {
-    padding: 10px 14px;
+    padding: 0.625rem 0.875rem;
     font-size: 0.9rem;
 }
 
@@ -480,19 +488,19 @@ body::before {
 .boton-secundario:hover,
 .boton-ghost:hover,
 .danger-button:hover {
-    transform: translateY(-1px);
+    transform: translateY(-0.0625rem);
 }
 
 .boton-principal:hover,
 .boton-secundario:hover,
 .boton-ghost:hover {
     background: rgba(62, 143, 176, 0.28);
-    box-shadow: 0 14px 28px rgba(62, 143, 176, 0.14);
+    box-shadow: 0 0.875rem 1.75rem rgba(62, 143, 176, 0.14);
 }
 
 .estado {
-    min-height: 24px;
-    margin-top: 14px;
+    min-height: 1.5rem;
+    margin-top: 0.875rem;
     color: var(--foam);
     position: relative;
     z-index: 1;
@@ -508,32 +516,32 @@ body::before {
 
 .app-section {
     display: grid;
-    gap: 22px;
+    gap: 1.375rem;
 }
 
 .lista-fanfics {
     display: grid;
-    gap: 16px;
+    gap: 1rem;
 }
 
 .paginacion-fanfics {
-    margin-top: 18px;
+    margin-top: 1.125rem;
     position: relative;
     z-index: 1;
 }
 
 .paginacion-fanfics__inner {
     display: flex;
-    gap: 10px;
+    gap: 0.625rem;
     flex-wrap: wrap;
     justify-content: center;
 }
 
 .paginacion-fanfics__boton {
-    width: 42px;
-    height: 42px;
-    border-radius: 999px;
-    border: 1px solid rgba(156, 207, 216, 0.28);
+    width: 2.625rem;
+    height: 2.625rem;
+    border-radius: 999rem;
+    border: 0.0625rem solid rgba(156, 207, 216, 0.28);
     background: rgba(62, 143, 176, 0.14);
     color: var(--foam);
     font: inherit;
@@ -543,43 +551,43 @@ body::before {
 }
 
 .paginacion-fanfics__boton:hover {
-    transform: translateY(-1px);
+    transform: translateY(-0.0625rem);
     background: rgba(62, 143, 176, 0.24);
-    box-shadow: 0 10px 24px rgba(62, 143, 176, 0.12);
+    box-shadow: 0 0.625rem 1.5rem rgba(62, 143, 176, 0.12);
 }
 
 .paginacion-fanfics__boton.is-active {
     background: rgba(156, 207, 216, 0.22);
     color: var(--text);
-    box-shadow: 0 0 0 1px rgba(156, 207, 216, 0.12) inset;
+    box-shadow: 0 0 0 0.0625rem rgba(156, 207, 216, 0.12) inset;
 }
 
 .fanfic-card {
-    border: 1px solid rgba(144, 140, 170, 0.2);
-    border-radius: 22px;
-    padding: 20px;
+    border: 0.0625rem solid rgba(144, 140, 170, 0.2);
+    border-radius: 1.375rem;
+    padding: 1.25rem;
     background: linear-gradient(180deg, rgba(42, 39, 63, 0.92), rgba(35, 33, 54, 0.92));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    box-shadow: inset 0 0.0625rem 0 rgba(255, 255, 255, 0.02);
 }
 
 .fanfic-card__top {
     display: flex;
     justify-content: space-between;
-    gap: 18px;
+    gap: 1.125rem;
     align-items: start;
-    margin-bottom: 16px;
+    margin-bottom: 1rem;
 }
 
 .fanfic-card__summary {
     display: grid;
-    gap: 8px;
+    gap: 0.5rem;
     justify-items: end;
 }
 
 .fanfic-card h3 {
     font-size: 2rem;
     line-height: 0.98;
-    margin-bottom: 6px;
+    margin-bottom: 0.375rem;
 }
 
 .autor,
@@ -594,7 +602,7 @@ body::before {
     font-size: 1.28rem;
     letter-spacing: 0.08em;
     white-space: nowrap;
-    text-shadow: 0 0 18px rgba(156, 207, 216, 0.18);
+    text-shadow: 0 0 1.125rem rgba(156, 207, 216, 0.18);
 }
 
 .fanfic-details {
@@ -605,25 +613,25 @@ body::before {
 }
 
 .fanfic-card.expanded .fanfic-details {
-    max-height: 2000px;
+    max-height: 125rem;
     opacity: 1;
-    margin-top: 18px;
+    margin-top: 1.125rem;
 }
 
 .fanfic-details__inner {
     display: grid;
-    gap: 16px;
-    padding-top: 4px;
+    gap: 1rem;
+    padding-top: 0.25rem;
 }
 
 .meta-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 16px;
-    padding: 14px;
-    border-radius: 18px;
+    gap: 0.625rem 1rem;
+    padding: 0.875rem;
+    border-radius: 1.125rem;
     background: rgba(24, 23, 38, 0.52);
-    border: 1px solid rgba(144, 140, 170, 0.14);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.14);
 }
 
 .meta-grid p {
@@ -640,11 +648,11 @@ body::before {
 }
 
 .tag-group + .tag-group {
-    margin-top: 4px;
+    margin-top: 0.25rem;
 }
 
 .tag-title {
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
     color: var(--foam);
     font-size: 0.9rem;
     letter-spacing: 0.08em;
@@ -654,70 +662,70 @@ body::before {
 .tags,
 .empty-card__chips {
     display: flex;
-    gap: 8px;
+    gap: 0.5rem;
     flex-wrap: wrap;
-    margin-top: 12px;
+    margin-top: 0.75rem;
 }
 
 .tag {
-    padding: 8px 12px;
-    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999rem;
     background: rgba(57, 53, 82, 0.92);
-    border: 1px solid rgba(144, 140, 170, 0.2);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.2);
     color: var(--text);
     font-size: 0.9rem;
 }
 
 .edit-form {
-    padding: 16px;
-    border-radius: 20px;
+    padding: 1rem;
+    border-radius: 1.25rem;
     background: rgba(24, 23, 38, 0.5);
-    border: 1px solid rgba(144, 140, 170, 0.14);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.14);
 }
 
 .edit-form__fields {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .edit-form__actions {
     display: flex;
-    gap: 12px;
+    gap: 0.75rem;
     flex-wrap: wrap;
-    margin-top: 12px;
+    margin-top: 0.75rem;
 }
 
 .edit-form__feedback {
-    min-height: 20px;
+    min-height: 1.25rem;
     color: var(--foam);
-    margin-top: 10px;
+    margin-top: 0.625rem;
 }
 
 .stats {
     display: grid;
-    gap: 18px;
+    gap: 1.125rem;
 }
 
 .admin-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 1rem;
     position: relative;
     z-index: 1;
 }
 
 .admin-card {
-    padding: 20px;
-    border-radius: 22px;
+    padding: 1.25rem;
+    border-radius: 1.375rem;
     background: rgba(24, 23, 38, 0.62);
-    border: 1px solid rgba(144, 140, 170, 0.18);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.18);
 }
 
 .admin-card h3 {
     font-family: "Cormorant Garamond", Georgia, serif;
     font-size: 1.8rem;
-    margin-bottom: 14px;
+    margin-bottom: 0.875rem;
 }
 
 .admin-card__header {
@@ -725,8 +733,8 @@ body::before {
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 14px;
+    gap: 0.75rem;
+    margin-bottom: 0.875rem;
 }
 
 .admin-card__header h3 {
@@ -740,18 +748,18 @@ body::before {
 
 .admin-list {
     display: grid;
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .admin-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    border-radius: 18px;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    border-radius: 1.125rem;
     background: rgba(42, 39, 63, 0.72);
-    border: 1px solid rgba(144, 140, 170, 0.16);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.16);
 }
 
 .admin-row--button {
@@ -764,7 +772,7 @@ body::before {
 }
 
 .admin-row--button:hover {
-    transform: translateY(-1px);
+    transform: translateY(-0.0625rem);
     background: rgba(57, 53, 82, 0.86);
     border-color: rgba(156, 207, 216, 0.22);
 }
@@ -772,7 +780,7 @@ body::before {
 .admin-row--button.is-active {
     background: rgba(62, 143, 176, 0.16);
     border-color: rgba(156, 207, 216, 0.32);
-    box-shadow: 0 0 0 1px rgba(156, 207, 216, 0.12) inset;
+    box-shadow: 0 0 0 0.0625rem rgba(156, 207, 216, 0.12) inset;
 }
 
 .admin-row__title {
@@ -782,7 +790,7 @@ body::before {
 
 .admin-row__meta {
     color: var(--subtle);
-    margin-top: 4px;
+    margin-top: 0.25rem;
     line-height: 1.45;
 }
 
@@ -800,11 +808,11 @@ body::before {
 
 .admin-badge {
     display: inline-block;
-    margin-left: 8px;
-    padding: 3px 8px;
-    border-radius: 999px;
+    margin-left: 0.5rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 999rem;
     background: rgba(62, 143, 176, 0.18);
-    border: 1px solid rgba(156, 207, 216, 0.22);
+    border: 0.0625rem solid rgba(156, 207, 216, 0.22);
     color: var(--foam);
     font-size: 0.72rem;
     letter-spacing: 0.08em;
@@ -814,7 +822,7 @@ body::before {
 .stats-grid,
 .stats-lists {
     display: grid;
-    gap: 14px;
+    gap: 0.875rem;
 }
 
 .stats-grid {
@@ -827,7 +835,7 @@ body::before {
 
 .stat-card h3,
 .ranking-card h3 {
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
     font-size: 1.7rem;
 }
 
@@ -842,16 +850,16 @@ body::before {
 .ranking-card ul {
     list-style: none;
     display: grid;
-    gap: 10px;
+    gap: 0.625rem;
 }
 
 .ranking-card li {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 0.75rem;
     align-items: start;
-    border-top: 1px solid rgba(144, 140, 170, 0.16);
-    padding-top: 10px;
+    border-top: 0.0625rem solid rgba(144, 140, 170, 0.16);
+    padding-top: 0.625rem;
 }
 
 .ranking-card li:first-child {
@@ -868,41 +876,41 @@ body::before {
 }
 
 .empty-card--stats .progress {
-    margin-top: 16px;
+    margin-top: 1rem;
 }
 
 .progress {
     width: 100%;
-    height: 12px;
-    border-radius: 999px;
+    height: 0.75rem;
+    border-radius: 999rem;
     background: rgba(24, 23, 38, 0.92);
-    border: 1px solid rgba(144, 140, 170, 0.16);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.16);
     overflow: hidden;
 }
 
 .progress__bar {
     display: block;
     height: 100%;
-    border-radius: 999px;
+    border-radius: 999rem;
     background: linear-gradient(90deg, var(--iris), var(--foam));
 }
 
 .footer {
-    padding: 20px 24px;
+    padding: 1.25rem 1.5rem;
     display: flex;
     justify-content: space-between;
-    gap: 18px;
+    gap: 1.125rem;
     align-items: center;
     background: rgba(24, 23, 38, 0.88);
-    border-radius: 24px;
+    border-radius: 1.5rem;
 }
 
 .footer__title {
     font-size: 1.6rem;
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 67.5rem) {
     .topbar {
         grid-template-columns: 1fr;
     }
@@ -927,10 +935,10 @@ body::before {
     }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 47.5rem) {
     .layout {
-        width: min(100% - 18px, 1180px);
-        padding: 18px 0 28px;
+        width: min(100% - 1.125rem, 73.75rem);
+        padding: 1.125rem 0 1.75rem;
     }
 
     .topbar,
@@ -938,7 +946,7 @@ body::before {
     .hero,
     .panel,
     .auth-shell {
-        padding: 18px;
+        padding: 1.125rem;
     }
 
     .archive-banner,

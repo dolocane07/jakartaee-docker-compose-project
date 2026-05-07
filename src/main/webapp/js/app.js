@@ -48,258 +48,259 @@ adminUsers.addEventListener('click', manejarClickUsuariosAdmin);
 adminFanfics.addEventListener('click', manejarClicksAdmin);
 authStatus.addEventListener('click', manejarAccionesSesion);
 
-async function init() {
+function init() {
     finishedDateInput.valueAsDate = new Date();
     userStarsInput.value = '5';
-    await cargarSesion();
+    return cargarSesion();
 }
 
-async function cargarSesion() {
-    try {
-        const { data } = await solicitar('/api/auth/session');
-        actualizarSesion(data.loggedIn ? data.user : null);
-        if (data.loggedIn) {
-            await cargarBibliotecaCompleta();
-        }
-    } catch (error) {
-        actualizarSesion(null);
-        authEstado.textContent = error.message;
-    }
+function cargarSesion() {
+    return solicitar('/api/auth/session')
+        .then(({ data }) => {
+            actualizarSesion(data.loggedIn ? data.user : null);
+            if (data.loggedIn) {
+                return cargarBibliotecaCompleta();
+            }
+            return null;
+        })
+        .catch(error => {
+            actualizarSesion(null);
+            authEstado.textContent = error.message;
+        });
 }
 
-async function manejarRegistro(evento) {
+function manejarRegistro(evento) {
     evento.preventDefault();
     authEstado.textContent = 'Creando cuenta...';
 
-    try {
-        const { response, data } = await solicitar('/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: document.getElementById('registerUsername').value.trim(),
-                email: document.getElementById('registerEmail').value.trim(),
-                password: document.getElementById('registerPassword').value
-            })
+    return solicitar('/api/auth/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: document.getElementById('registerUsername').value.trim(),
+            email: document.getElementById('registerEmail').value.trim(),
+            password: document.getElementById('registerPassword').value
+        })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo crear la cuenta');
+            }
+
+            registerForm.reset();
+            authEstado.textContent = 'Cuenta creada. Ya puedes usar tu biblioteca.';
+            actualizarSesion(data.user);
+            return cargarBibliotecaCompleta();
+        })
+        .catch(error => {
+            authEstado.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo crear la cuenta');
-        }
-
-        registerForm.reset();
-        authEstado.textContent = 'Cuenta creada. Ya puedes usar tu biblioteca.';
-        actualizarSesion(data.user);
-        await cargarBibliotecaCompleta();
-    } catch (error) {
-        authEstado.textContent = error.message;
-    }
 }
 
-async function manejarLogin(evento) {
+function manejarLogin(evento) {
     evento.preventDefault();
     authEstado.textContent = 'Entrando...';
 
-    try {
-        const { response, data } = await solicitar('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                identifier: document.getElementById('loginIdentifier').value.trim(),
-                password: document.getElementById('loginPassword').value
-            })
+    return solicitar('/api/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            identifier: document.getElementById('loginIdentifier').value.trim(),
+            password: document.getElementById('loginPassword').value
+        })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo iniciar sesion');
+            }
+
+            loginForm.reset();
+            authEstado.textContent = 'Sesion iniciada.';
+            actualizarSesion(data.user);
+            return cargarBibliotecaCompleta();
+        })
+        .catch(error => {
+            authEstado.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo iniciar sesion');
-        }
-
-        loginForm.reset();
-        authEstado.textContent = 'Sesion iniciada.';
-        actualizarSesion(data.user);
-        await cargarBibliotecaCompleta();
-    } catch (error) {
-        authEstado.textContent = error.message;
-    }
 }
 
-async function manejarAccionesSesion(evento) {
+function manejarAccionesSesion(evento) {
     const boton = evento.target.closest('[data-action="logout"]');
     if (!boton) {
         return;
     }
 
-    try {
-        await solicitar('/api/auth/logout', { method: 'POST' });
-    } finally {
-        actualizarSesion(null);
-        estado.textContent = '';
-        authEstado.textContent = 'Sesion cerrada.';
-    }
+    return solicitar('/api/auth/logout', { method: 'POST' })
+        .finally(() => {
+            actualizarSesion(null);
+            estado.textContent = '';
+            authEstado.textContent = 'Sesion cerrada.';
+        });
 }
 
-async function guardarFanfic(evento) {
+function guardarFanfic(evento) {
     evento.preventDefault();
     estado.textContent = 'Importando datos desde AO3...';
 
-    try {
-        const { response, data } = await solicitar('/api/fanfics/importar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                url: urlInput.value.trim(),
-                finishedDate: finishedDateInput.value,
-                userStars: Number(userStarsInput.value)
-            })
+    return solicitar('/api/fanfics/importar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            url: urlInput.value.trim(),
+            finishedDate: finishedDateInput.value,
+            userStars: Number(userStarsInput.value)
+        })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo guardar el fanfic');
+            }
+
+            estado.textContent = `Fanfic guardado: ${data.fanfic.titulo}`;
+            formFanfic.reset();
+            finishedDateInput.valueAsDate = new Date();
+            userStarsInput.value = '5';
+
+            return cargarBibliotecaCompleta();
+        })
+        .catch(error => {
+            estado.textContent = error.message;
+            mostrarModoManual();
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo guardar el fanfic');
-        }
-
-        estado.textContent = `Fanfic guardado: ${data.fanfic.titulo}`;
-        formFanfic.reset();
-        finishedDateInput.valueAsDate = new Date();
-        userStarsInput.value = '5';
-
-        await cargarBibliotecaCompleta();
-    } catch (error) {
-        estado.textContent = error.message;
-        mostrarModoManual();
-    }
 }
 
-async function guardarFanficManual(evento) {
+function guardarFanficManual(evento) {
     evento.preventDefault();
     estado.textContent = 'Guardando fanfic manualmente...';
 
-    try {
-        const { response, data } = await solicitar('/api/fanfics/manual', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                url: urlInput.value.trim(),
-                finishedDate: finishedDateInput.value,
-                userStars: Number(userStarsInput.value),
-                titulo: document.getElementById('manualTitulo').value.trim(),
-                autor: document.getElementById('manualAutor').value.trim(),
-                ao3Rating: document.getElementById('manualAo3Rating').value.trim(),
-                wordCount: Number(document.getElementById('manualWordCount').value || 0),
-                warnings: document.getElementById('manualWarnings').value.trim(),
-                relationships: document.getElementById('manualRelationships').value.trim(),
-                fandoms: document.getElementById('manualFandoms').value.trim(),
-                categories: document.getElementById('manualCategories').value.trim()
-            })
+    return solicitar('/api/fanfics/manual', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            url: urlInput.value.trim(),
+            finishedDate: finishedDateInput.value,
+            userStars: Number(userStarsInput.value),
+            titulo: document.getElementById('manualTitulo').value.trim(),
+            autor: document.getElementById('manualAutor').value.trim(),
+            ao3Rating: document.getElementById('manualAo3Rating').value.trim(),
+            wordCount: Number(document.getElementById('manualWordCount').value || 0),
+            warnings: document.getElementById('manualWarnings').value.trim(),
+            relationships: document.getElementById('manualRelationships').value.trim(),
+            fandoms: document.getElementById('manualFandoms').value.trim(),
+            categories: document.getElementById('manualCategories').value.trim()
+        })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo guardar el fanfic manualmente');
+            }
+
+            estado.textContent = `Fanfic guardado: ${data.fanfic.titulo}`;
+            formFanfic.reset();
+            manualForm.reset();
+            manualForm.classList.add('hidden');
+            toggleManualImport.textContent = 'Usar modo manual';
+            toggleManualImport.setAttribute('aria-expanded', 'false');
+            finishedDateInput.valueAsDate = new Date();
+            userStarsInput.value = '5';
+            document.getElementById('manualWordCount').value = '0';
+
+            return cargarBibliotecaCompleta();
+        })
+        .catch(error => {
+            estado.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo guardar el fanfic manualmente');
-        }
-
-        estado.textContent = `Fanfic guardado: ${data.fanfic.titulo}`;
-        formFanfic.reset();
-        manualForm.reset();
-        manualForm.classList.add('hidden');
-        toggleManualImport.textContent = 'Usar modo manual';
-        finishedDateInput.valueAsDate = new Date();
-        userStarsInput.value = '5';
-        document.getElementById('manualWordCount').value = '0';
-
-        await cargarBibliotecaCompleta();
-    } catch (error) {
-        estado.textContent = error.message;
-    }
 }
 
-async function cargarBibliotecaCompleta() {
+function cargarBibliotecaCompleta() {
     if (state.user?.isAdmin) {
-        await cargarPanelAdmin();
-        return;
+        return cargarPanelAdmin();
     }
 
-    await Promise.all([cargarFanfics(), cargarEstadisticas()]);
+    return Promise.all([cargarFanfics(), cargarEstadisticas()]);
 }
 
-async function cargarFanfics() {
+function cargarFanfics() {
     listaFanfics.innerHTML = '<div class="mensaje neutro">Cargando fanfics...</div>';
     paginacionFanfics.innerHTML = '';
 
-    try {
-        const { response, data } = await solicitar('/api/fanfics');
+    return solicitar('/api/fanfics')
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudieron cargar los fanfics');
+            }
 
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudieron cargar los fanfics');
-        }
+            contadorFanfics.textContent = `${data.fanfics.length} fanfic(s) guardado(s)`;
+            state.fanfics = data.fanfics;
 
-        contadorFanfics.textContent = `${data.fanfics.length} fanfic(s) guardado(s)`;
-        state.fanfics = data.fanfics;
+            if (data.fanfics.length === 0) {
+                state.currentPage = 1;
+                listaFanfics.innerHTML = `
+                    <article class="empty-card">
+                        <p class="empty-card__eyebrow">Biblioteca vacia</p>
+                        <h3>Todavia no has guardado ningun fanfic</h3>
+                        <p>
+                            Empieza importando un enlace de AO3 para crear tu primera ficha. Cada entrada se guardara
+                            solo en tu cuenta y luego podras editarla o borrarla.
+                        </p>
+                        <div class="empty-card__chips">
+                            <span class="tag">Cuenta privada</span>
+                            <span class="tag">Detalle deslizable</span>
+                            <span class="tag">Editar</span>
+                            <span class="tag">Borrar</span>
+                        </div>
+                    </article>
+                `;
+                paginacionFanfics.innerHTML = '';
+                return;
+            }
 
-        if (data.fanfics.length === 0) {
-            state.currentPage = 1;
-            listaFanfics.innerHTML = `
-                <article class="empty-card">
-                    <p class="empty-card__eyebrow">Biblioteca vacia</p>
-                    <h3>Todavia no has guardado ningun fanfic</h3>
-                    <p>
-                        Empieza importando un enlace de AO3 para crear tu primera ficha. Cada entrada se guardara
-                        solo en tu cuenta y luego podras editarla o borrarla.
-                    </p>
-                    <div class="empty-card__chips">
-                        <span class="tag">Cuenta privada</span>
-                        <span class="tag">Detalle deslizable</span>
-                        <span class="tag">Editar</span>
-                        <span class="tag">Borrar</span>
-                    </div>
-                </article>
-            `;
+            const totalPages = Math.ceil(state.fanfics.length / state.fanficsPerPage);
+            state.currentPage = Math.min(state.currentPage, totalPages);
+            renderPaginaBiblioteca();
+        })
+        .catch(error => {
+            listaFanfics.innerHTML = `<div class="mensaje error">${escapeHtml(error.message)}</div>`;
             paginacionFanfics.innerHTML = '';
-            return;
-        }
-
-        const totalPages = Math.ceil(state.fanfics.length / state.fanficsPerPage);
-        state.currentPage = Math.min(state.currentPage, totalPages);
-        renderPaginaBiblioteca();
-    } catch (error) {
-        listaFanfics.innerHTML = `<div class="mensaje error">${escapeHtml(error.message)}</div>`;
-        paginacionFanfics.innerHTML = '';
-    }
+        });
 }
 
-async function cargarEstadisticas() {
+function cargarEstadisticas() {
     stats.innerHTML = '<div class="mensaje neutro">Cargando estadisticas...</div>';
 
-    try {
-        const { response, data } = await solicitar('/api/estadisticas');
+    return solicitar('/api/estadisticas')
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudieron cargar las estadisticas');
+            }
 
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudieron cargar las estadisticas');
-        }
+            if (!data.enabled) {
+                stats.innerHTML = `
+                    <article class="empty-card empty-card--stats">
+                        <p class="empty-card__eyebrow">Stats locked</p>
+                        <h3>${data.totalFanfics}/10 fanfics guardados</h3>
+                        <p>${escapeHtml(data.mensaje)}</p>
+                        <div class="progress">
+                            <span class="progress__bar" style="width: ${Math.min((data.totalFanfics / 10) * 100, 100)}%"></span>
+                        </div>
+                    </article>
+                `;
+                return;
+            }
 
-        if (!data.enabled) {
-            stats.innerHTML = `
-                <article class="empty-card empty-card--stats">
-                    <p class="empty-card__eyebrow">Stats locked</p>
-                    <h3>${data.totalFanfics}/10 fanfics guardados</h3>
-                    <p>${escapeHtml(data.mensaje)}</p>
-                    <div class="progress">
-                        <span class="progress__bar" style="width: ${Math.min((data.totalFanfics / 10) * 100, 100)}%"></span>
-                    </div>
-                </article>
-            `;
-            return;
-        }
-
-        stats.innerHTML = renderStats(data);
-    } catch (error) {
-        stats.innerHTML = `<div class="mensaje error">${escapeHtml(error.message)}</div>`;
-    }
+            stats.innerHTML = renderStats(data);
+        })
+        .catch(error => {
+            stats.innerHTML = `<div class="mensaje error">${escapeHtml(error.message)}</div>`;
+        });
 }
 
 function manejarClicksBiblioteca(evento) {
@@ -308,6 +309,7 @@ function manejarClicksBiblioteca(evento) {
         const card = toggleButton.closest('.fanfic-card');
         const expandida = card.classList.toggle('expanded');
         toggleButton.textContent = expandida ? '−' : '+';
+        toggleButton.setAttribute('aria-expanded', String(expandida));
         toggleButton.setAttribute('aria-label', expandida ? 'Ocultar detalles' : 'Ver detalles');
         toggleButton.setAttribute('title', expandida ? 'Ocultar detalles' : 'Ver detalles');
         return;
@@ -333,11 +335,13 @@ function alternarModoManual() {
     const visible = !manualForm.classList.contains('hidden');
     manualForm.classList.toggle('hidden', visible);
     toggleManualImport.textContent = visible ? 'Usar modo manual' : 'Ocultar modo manual';
+    toggleManualImport.setAttribute('aria-expanded', String(!visible));
 }
 
 function mostrarModoManual() {
     manualForm.classList.remove('hidden');
     toggleManualImport.textContent = 'Ocultar modo manual';
+    toggleManualImport.setAttribute('aria-expanded', 'true');
 }
 
 function manejarClicksAdmin(evento) {
@@ -366,7 +370,7 @@ function manejarClickUsuariosAdmin(evento) {
     renderAdminFanficsFiltrados();
 }
 
-async function manejarEdicionFanfic(evento) {
+function manejarEdicionFanfic(evento) {
     const form = evento.target.closest('.edit-form');
     if (!form) {
         return;
@@ -380,51 +384,51 @@ async function manejarEdicionFanfic(evento) {
     const feedback = form.querySelector('.edit-form__feedback');
     feedback.textContent = 'Guardando cambios...';
 
-    try {
-        const { response, data } = await solicitar('/api/fanfics/actualizar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ fanficId, finishedDate, userStars })
+    return solicitar('/api/fanfics/actualizar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fanficId, finishedDate, userStars })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo actualizar');
+            }
+
+            feedback.textContent = 'Cambios guardados.';
+            return cargarBibliotecaCompleta();
+        })
+        .catch(error => {
+            feedback.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo actualizar');
-        }
-
-        feedback.textContent = 'Cambios guardados.';
-        await cargarBibliotecaCompleta();
-    } catch (error) {
-        feedback.textContent = error.message;
-    }
 }
 
-async function borrarFanfic(fanficId) {
+function borrarFanfic(fanficId) {
     if (!confirm('¿Seguro que quieres borrar esta entrada de tu biblioteca?')) {
         return;
     }
 
-    try {
-        const { response, data } = await solicitar('/api/fanfics/eliminar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ fanficId })
+    return solicitar('/api/fanfics/eliminar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fanficId })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la entrada');
+            }
+
+            return cargarBibliotecaCompleta();
+        })
+        .catch(error => {
+            estado.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la entrada');
-        }
-
-        await cargarBibliotecaCompleta();
-    } catch (error) {
-        estado.textContent = error.message;
-    }
 }
 
-async function cargarPanelAdmin() {
+function cargarPanelAdmin() {
     adminSection.classList.remove('hidden');
     adminEstado.textContent = '';
     adminUsers.innerHTML = '<div class="mensaje neutro">Cargando usuarios...</div>';
@@ -432,67 +436,67 @@ async function cargarPanelAdmin() {
     adminFanficsTitle.textContent = 'Entradas del usuario';
     adminSelectedActions.innerHTML = '';
 
-    try {
-        const [usersResult, fanficsResult] = await Promise.all([
-            solicitar('/api/admin/users'),
-            solicitar('/api/admin/fanfics')
-        ]);
+    return Promise.all([
+        solicitar('/api/admin/users'),
+        solicitar('/api/admin/fanfics')
+    ])
+        .then(([usersResult, fanficsResult]) => {
+            if (!usersResult.response.ok || !usersResult.data.ok) {
+                throw new Error(usersResult.data.detalle || usersResult.data.mensaje || 'No se pudieron cargar los usuarios');
+            }
 
-        if (!usersResult.response.ok || !usersResult.data.ok) {
-            throw new Error(usersResult.data.detalle || usersResult.data.mensaje || 'No se pudieron cargar los usuarios');
-        }
+            if (!fanficsResult.response.ok || !fanficsResult.data.ok) {
+                throw new Error(fanficsResult.data.detalle || fanficsResult.data.mensaje || 'No se pudieron cargar las entradas');
+            }
 
-        if (!fanficsResult.response.ok || !fanficsResult.data.ok) {
-            throw new Error(fanficsResult.data.detalle || fanficsResult.data.mensaje || 'No se pudieron cargar las entradas');
-        }
+            state.adminUsersData = usersResult.data.users;
+            state.adminFanfics = fanficsResult.data.fanfics;
 
-        state.adminUsersData = usersResult.data.users;
-        state.adminFanfics = fanficsResult.data.fanfics;
+            const usuariosNoAdmin = state.adminUsersData.filter(user => !user.isAdmin);
 
-        const usuariosNoAdmin = state.adminUsersData.filter(user => !user.isAdmin);
+            if (usuariosNoAdmin.length === 0) {
+                state.selectedAdminUserId = null;
+            } else if (!usuariosNoAdmin.some(user => Number(user.id) === state.selectedAdminUserId)) {
+                state.selectedAdminUserId = Number(usuariosNoAdmin[0].id);
+            }
 
-        if (usuariosNoAdmin.length === 0) {
-            state.selectedAdminUserId = null;
-        } else if (!usuariosNoAdmin.some(user => Number(user.id) === state.selectedAdminUserId)) {
-            state.selectedAdminUserId = Number(usuariosNoAdmin[0].id);
-        }
-
-        adminUsers.innerHTML = renderAdminUsers(state.adminUsersData);
-        renderAdminFanficsFiltrados();
-    } catch (error) {
-        adminEstado.textContent = error.message;
-        adminUsers.innerHTML = '<div class="mensaje error">No se pudieron cargar los usuarios</div>';
-        adminFanfics.innerHTML = '<div class="mensaje error">No se pudieron cargar las entradas</div>';
-        adminFanficsTitle.textContent = 'Entradas del usuario';
-    }
+            adminUsers.innerHTML = renderAdminUsers(state.adminUsersData);
+            renderAdminFanficsFiltrados();
+        })
+        .catch(error => {
+            adminEstado.textContent = error.message;
+            adminUsers.innerHTML = '<div class="mensaje error">No se pudieron cargar los usuarios</div>';
+            adminFanfics.innerHTML = '<div class="mensaje error">No se pudieron cargar las entradas</div>';
+            adminFanficsTitle.textContent = 'Entradas del usuario';
+        });
 }
 
-async function borrarFanficComoAdmin(fanficId) {
+function borrarFanficComoAdmin(fanficId) {
     if (!confirm('¿Seguro que quieres borrar esta entrada desde el panel admin?')) {
         return;
     }
 
-    try {
-        const { response, data } = await solicitar('/api/admin/fanfics/eliminar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ fanficId })
+    return solicitar('/api/admin/fanfics/eliminar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fanficId })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la entrada');
+            }
+
+            adminEstado.textContent = 'Entrada borrada desde el panel admin.';
+            return cargarPanelAdmin();
+        })
+        .catch(error => {
+            adminEstado.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la entrada');
-        }
-
-        adminEstado.textContent = 'Entrada borrada desde el panel admin.';
-        await cargarPanelAdmin();
-    } catch (error) {
-        adminEstado.textContent = error.message;
-    }
 }
 
-async function borrarUsuarioComoAdmin(userId) {
+function borrarUsuarioComoAdmin(userId) {
     const user = (state.adminUsersData || []).find(item => Number(item.id) === Number(userId));
     if (!user) {
         adminEstado.textContent = 'No se encontro la cuenta seleccionada.';
@@ -503,25 +507,25 @@ async function borrarUsuarioComoAdmin(userId) {
         return;
     }
 
-    try {
-        const { response, data } = await solicitar('/api/admin/users/eliminar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userId })
+    return solicitar('/api/admin/users/eliminar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+    })
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok) {
+                throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la cuenta');
+            }
+
+            state.selectedAdminUserId = null;
+            adminEstado.textContent = 'Cuenta borrada desde el panel admin.';
+            return cargarPanelAdmin();
+        })
+        .catch(error => {
+            adminEstado.textContent = error.message;
         });
-
-        if (!response.ok || !data.ok) {
-            throw new Error(data.detalle || data.mensaje || 'No se pudo borrar la cuenta');
-        }
-
-        state.selectedAdminUserId = null;
-        adminEstado.textContent = 'Cuenta borrada desde el panel admin.';
-        await cargarPanelAdmin();
-    } catch (error) {
-        adminEstado.textContent = error.message;
-    }
 }
 
 function actualizarSesion(user) {
@@ -612,13 +616,15 @@ function renderFanfic(fanfic) {
                         class="boton-ghost boton-ghost--icon"
                         type="button"
                         data-action="toggle-details"
+                        aria-controls="fanfic-details-${fanfic.id}"
+                        aria-expanded="false"
                         aria-label="Ver detalles"
                         title="Ver detalles"
                     >+</button>
                 </div>
             </div>
 
-            <div class="fanfic-details">
+            <div class="fanfic-details" id="fanfic-details-${fanfic.id}">
                 <div class="fanfic-details__inner">
                     <div class="meta-grid">
                         <p><strong>AO3 rating:</strong> ${escapeHtml(fanfic.ao3Rating)}</p>
@@ -816,24 +822,21 @@ function renderBreakdown(titulo, mapa) {
     `;
 }
 
-async function solicitar(url, options = {}) {
-    const response = await fetch(url, {
+function solicitar(url, options = {}) {
+    return fetch(url, {
         credentials: 'same-origin',
         ...options
-    });
+    })
+        .then(response => response.json()
+            .catch(() => ({}))
+            .then(data => {
+                if (response.status === 401) {
+                    actualizarSesion(null);
+                }
 
-    let data = {};
-    try {
-        data = await response.json();
-    } catch (error) {
-        data = {};
-    }
-
-    if (response.status === 401) {
-        actualizarSesion(null);
-    }
-
-    return { response, data };
+                return { response, data };
+            }))
+        .catch(error => Promise.reject(new Error(error.message || 'No se pudo completar la peticion')));
 }
 
 function escapeHtml(valor) {
