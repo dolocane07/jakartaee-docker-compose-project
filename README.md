@@ -1,34 +1,27 @@
-# Codigo exacto para el AO3 Fanfic Tracker
+# AO3 Fanfic Tracker
 
-Esta carpeta contiene los archivos completos que tendrias que usar como reemplazo base dentro de tu proyecto:
+Aplicacion Jakarta EE para guardar fanfics de AO3, gestionarlos por usuario y consultar estadisticas basicas. Incluye:
 
-- `pom.xml`
-- `mysql/init/01-bd1.sql`
-- `src/main/java/com/ejemplo/model/ConexionBD.java`
-- `src/main/java/com/ejemplo/model/Fanfic.java`
-- `src/main/java/com/ejemplo/model/TagCount.java`
-- `src/main/java/com/ejemplo/model/FanficDAO.java`
-- `src/main/java/com/ejemplo/model/StatsDAO.java`
-- `src/main/java/com/ejemplo/service/Ao3ScraperService.java`
-- `src/main/java/com/ejemplo/controller/ImportarFanficServlet.java`
-- `src/main/java/com/ejemplo/controller/ListarFanficsServlet.java`
-- `src/main/java/com/ejemplo/controller/EstadisticasServlet.java`
-- `src/main/webapp/WEB-INF/web.xml`
-- `src/main/webapp/index.html`
-- `src/main/webapp/js/app.js`
-- `src/main/webapp/css/estilos.css`
+- registro, login y logout
+- importacion automatica desde AO3
+- guardado manual como alternativa
+- biblioteca personal con edicion y borrado
+- panel de administracion para cuentas admin
+- estadisticas a partir de 10 fanfics
 
-## Como aplicarlo al proyecto base
+## Estructura
 
-1. Reemplaza los archivos antiguos de contactos por los nuevos.
-2. Crea la carpeta `service` dentro de `src/main/java/com/ejemplo/`.
-3. Borra o deja de usar:
-   - `Contacto.java`
-   - `ContactoDAO.java`
-   - `BuscarContactosServlet.java`
-4. Sustituye el SQL de `mysql/init/01-bd1.sql`.
-5. Reconstruye con Docker Compose.
+- `src/main/java/com/ejemplo/controller`: endpoints HTTP
+- `src/main/java/com/ejemplo/model`: entidades y acceso a datos
+- `src/main/java/com/ejemplo/service`: scraping e inicializacion del esquema
+- `src/main/java/com/ejemplo/util`: utilidades comunes
+- `src/main/webapp`: frontend
+- `mysql/init/01-bd1.sql`: base inicial para MySQL
 
-## Nota importante
+## Limpieza aplicada
 
-El scraper de AO3 esta hecho con selectores estables de la pagina publica de works, pero no he podido verificarlo en vivo desde este entorno porque no tengo acceso de red aqui. Si AO3 cambia alguna clase HTML, habria que ajustar `Ao3ScraperService.java`.
+Se eliminaron capas intermedias `*Model` que solo reenviaban llamadas entre servlets y DAO, ademas de artefactos generados y restos de un proyecto anterior. El comportamiento esperado de la app se mantiene, pero con menos archivos y menos indirecciones.
+
+## Ejecucion
+
+Construye el WAR con Maven y levanta la app con tu flujo habitual de Docker Compose o despliegue Jakarta EE.

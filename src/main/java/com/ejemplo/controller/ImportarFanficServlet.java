@@ -2,15 +2,17 @@ package com.ejemplo.controller;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.Map;
 
 import com.ejemplo.model.Fanfic;
-import com.ejemplo.model.ImportarFanficModel;
+import com.ejemplo.model.FanficDAO;
+import com.ejemplo.service.Ao3ScraperService;
 import com.ejemplo.service.SchemaInitializer;
+import com.ejemplo.util.AccessControlUtil;
 import com.ejemplo.util.ErrorUtil;
 import com.ejemplo.util.JsonRequestUtil;
-import com.ejemplo.util.SessionUtil;
+import com.ejemplo.util.ServletResponseUtil;
 import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
@@ -23,7 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ImportarFanficServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final ImportarFanficModel importarFanficModel = new ImportarFanficModel();
+    private final FanficDAO fanficDAO = new FanficDAO();
+    private final Ao3ScraperService ao3ScraperService = new Ao3ScraperService();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -32,45 +35,50 @@ public class ImportarFanficServlet extends HttpServlet {
         request.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType("application/json;charset=UTF-8");
 
-        Integer userId = SessionUtil.getUserId(request);
+        Integer userId = AccessControlUtil.requireLoggedUser(
+                request, response, gson, "Necesitas iniciar sesion para guardar fanfics");
         if (userId == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(gson.toJson(crearError("Necesitas iniciar sesion para guardar fanfics")));
             return;
         }
 
-        if (SessionUtil.isAdmin(request)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write(gson.toJson(crearError("La cuenta admin no puede importar fanfics")));
+        if (!AccessControlUtil.requireStandardUser(
+                request, response, gson, "La cuenta admin no puede importar fanfics")) {
             return;
         }
 
         try {
             schemaInitializer.ensureSchema();
             Map<String, Object> datos = JsonRequestUtil.leerJson(request, gson);
-            Fanfic fanfic = importarFanficModel.importar(userId, datos);
+            String finishedDate = JsonRequestUtil.obtenerTexto(datos, "finishedDate");
+            int userStars = JsonRequestUtil.obtenerEntero(datos, "userStars");
 
-            Map<String, Object> respuesta = new HashMap<>();
-            respuesta.put("ok", true);
-            respuesta.put("fanfic", fanfic);
+            if (finishedDate.isBlank()) {
+                throw new IllegalArgumentException("La fecha en que lo terminaste es obligatoria");
+            }
 
-            response.getWriter().write(gson.toJson(respuesta));
+            LocalDate.parse(finishedDate);
+
+            if (userStars < 1 || userStars > 5) {
+                throw new IllegalArgumentException("Las estrellas deben estar entre 1 y 5");
+            }
+
+            Fanfic fanfic = ao3ScraperService.extraerFanfic(JsonRequestUtil.obtenerTexto(datos, "url"));
+
+            if (fanficDAO.existePorUrl(userId, fanfic.getAo3Url())) {
+                throw new IllegalArgumentException("Ese fanfic ya esta guardado en tu cuenta");
+            }
+
+            fanfic.setFinishedDate(finishedDate);
+            fanfic.setUserStars(userStars);
+            fanficDAO.guardar(userId, fanfic);
+
+            ServletResponseUtil.writeJson(response, gson, Map.of("ok", true, "fanfic", fanfic));
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(gson.toJson(crearError(e.getMessage())));
+            ServletResponseUtil.writeError(response, gson, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
-            Map<String, Object> error = crearError("No se pudo importar el fanfic");
+            Map<String, Object> error = ServletResponseUtil.crearError("No se pudo importar el fanfic");
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
-            response.getWriter().write(gson.toJson(error));
+            ServletResponseUtil.writeJson(response, gson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error);
         }
-    }
-
-    private Map<String, Object> crearError(String mensaje) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("ok", false);
-        error.put("mensaje", mensaje);
-        return error;
     }
 }

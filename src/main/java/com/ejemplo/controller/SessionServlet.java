@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ejemplo.model.SessionInfoModel;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
+import com.ejemplo.util.SessionUtil;
+import com.ejemplo.util.ServletResponseUtil;
 import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
@@ -19,7 +20,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SessionServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final SessionInfoModel sessionInfoModel = new SessionInfoModel();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -28,14 +28,16 @@ public class SessionServlet extends HttpServlet {
 
         try {
             schemaInitializer.ensureSchema();
-            response.getWriter().write(gson.toJson(sessionInfoModel.obtenerRespuesta(request)));
+            Map<String, Object> respuesta = new HashMap<>();
+            Map<String, Object> user = SessionUtil.getUserData(request);
+            respuesta.put("ok", true);
+            respuesta.put("loggedIn", user != null);
+            respuesta.put("user", user);
+            ServletResponseUtil.writeJson(response, gson, respuesta);
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            Map<String, Object> error = new HashMap<>();
-            error.put("ok", false);
-            error.put("mensaje", "No se pudo comprobar la sesion");
+            Map<String, Object> error = ServletResponseUtil.crearError("No se pudo comprobar la sesion");
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
-            response.getWriter().write(gson.toJson(error));
+            ServletResponseUtil.writeJson(response, gson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error);
         }
     }
 }

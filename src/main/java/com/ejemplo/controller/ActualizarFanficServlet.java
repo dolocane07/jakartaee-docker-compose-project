@@ -2,14 +2,15 @@ package com.ejemplo.controller;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.Map;
 
-import com.ejemplo.model.ActualizarFanficModel;
+import com.ejemplo.model.FanficDAO;
 import com.ejemplo.service.SchemaInitializer;
+import com.ejemplo.util.AccessControlUtil;
 import com.ejemplo.util.ErrorUtil;
 import com.ejemplo.util.JsonRequestUtil;
-import com.ejemplo.util.SessionUtil;
+import com.ejemplo.util.ServletResponseUtil;
 import com.google.gson.Gson;
 
 import jakarta.servlet.ServletException;
@@ -22,7 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ActualizarFanficServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final ActualizarFanficModel actualizarFanficModel = new ActualizarFanficModel();
+    private final FanficDAO fanficDAO = new FanficDAO();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -31,43 +32,38 @@ public class ActualizarFanficServlet extends HttpServlet {
         request.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType("application/json;charset=UTF-8");
 
-        Integer userId = SessionUtil.getUserId(request);
+        Integer userId = AccessControlUtil.requireLoggedUser(
+                request, response, gson, "Necesitas iniciar sesion para editar entradas");
         if (userId == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(gson.toJson(crearError("Necesitas iniciar sesion para editar entradas")));
             return;
         }
 
-        if (SessionUtil.isAdmin(request)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write(gson.toJson(crearError("La cuenta admin no puede editar una biblioteca propia")));
+        if (!AccessControlUtil.requireStandardUser(
+                request, response, gson, "La cuenta admin no puede editar una biblioteca propia")) {
             return;
         }
 
         try {
             schemaInitializer.ensureSchema();
             Map<String, Object> datos = JsonRequestUtil.leerJson(request, gson);
-            actualizarFanficModel.actualizar(userId, datos);
+            int fanficId = JsonRequestUtil.obtenerEntero(datos, "fanficId");
+            String finishedDate = JsonRequestUtil.obtenerTexto(datos, "finishedDate");
+            int userStars = JsonRequestUtil.obtenerEntero(datos, "userStars");
 
-            Map<String, Object> respuesta = new HashMap<>();
-            respuesta.put("ok", true);
-            respuesta.put("mensaje", "Entrada actualizada");
-            response.getWriter().write(gson.toJson(respuesta));
+            LocalDate.parse(finishedDate);
+            if (userStars < 1 || userStars > 5) {
+                throw new IllegalArgumentException("Las estrellas deben estar entre 1 y 5");
+            }
+
+            fanficDAO.actualizarLectura(userId, fanficId, finishedDate, userStars);
+
+            ServletResponseUtil.writeJson(response, gson, Map.of("ok", true, "mensaje", "Entrada actualizada"));
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(gson.toJson(crearError(e.getMessage())));
+            ServletResponseUtil.writeError(response, gson, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            Map<String, Object> error = crearError("No se pudo actualizar la entrada");
+            Map<String, Object> error = ServletResponseUtil.crearError("No se pudo actualizar la entrada");
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
-            response.getWriter().write(gson.toJson(error));
+            ServletResponseUtil.writeJson(response, gson, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error);
         }
-    }
-
-    private Map<String, Object> crearError(String mensaje) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("ok", false);
-        error.put("mensaje", mensaje);
-        return error;
     }
 }
