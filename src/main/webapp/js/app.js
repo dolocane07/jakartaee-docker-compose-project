@@ -28,13 +28,16 @@ const adminEstado = document.getElementById('adminEstado');
 const authStatus = document.getElementById('authStatus');
 const authSection = document.getElementById('authSection');
 const appSection = document.getElementById('appSection');
-const heroSection = document.getElementById('heroSection');
 const authEstado = document.getElementById('authEstado');
 const importSection = document.getElementById('importar');
 const bibliotecaSection = document.getElementById('biblioteca');
 const estadisticasSection = document.getElementById('estadisticas');
 const registerForm = document.getElementById('registerForm');
 const loginForm = document.getElementById('loginForm');
+const registerCard = document.getElementById('registerCard');
+const loginCard = document.getElementById('loginCard');
+const showRegisterButton = document.getElementById('showRegisterButton');
+const showLoginButton = document.getElementById('showLoginButton');
 
 registerForm.addEventListener('submit', manejarRegistro);
 loginForm.addEventListener('submit', manejarLogin);
@@ -47,10 +50,13 @@ paginacionFanfics.addEventListener('click', manejarPaginacionBiblioteca);
 adminUsers.addEventListener('click', manejarClickUsuariosAdmin);
 adminFanfics.addEventListener('click', manejarClicksAdmin);
 authStatus.addEventListener('click', manejarAccionesSesion);
+showRegisterButton.addEventListener('click', () => cambiarVistaAuth('register'));
+showLoginButton.addEventListener('click', () => cambiarVistaAuth('login'));
 
 function init() {
     finishedDateInput.valueAsDate = new Date();
     userStarsInput.value = '5';
+    cambiarVistaAuth('register');
     return cargarSesion();
 }
 
@@ -251,12 +257,6 @@ function cargarFanfics() {
                             Empieza importando un enlace de AO3 para crear tu primera ficha. Cada entrada se guardara
                             solo en tu cuenta y luego podras editarla o borrarla.
                         </p>
-                        <div class="empty-card__chips">
-                            <span class="tag">Cuenta privada</span>
-                            <span class="tag">Detalle deslizable</span>
-                            <span class="tag">Editar</span>
-                            <span class="tag">Borrar</span>
-                        </div>
                     </article>
                 `;
                 paginacionFanfics.innerHTML = '';
@@ -532,7 +532,6 @@ function actualizarSesion(user) {
     state.user = user;
     appSection.classList.toggle('hidden', !user);
     authSection.classList.toggle('hidden', Boolean(user));
-    heroSection.classList.toggle('hidden', Boolean(user));
     adminSection.classList.toggle('hidden', !user || !user.isAdmin);
     importSection.classList.toggle('hidden', !user || user.isAdmin);
     bibliotecaSection.classList.toggle('hidden', !user || user.isAdmin);
@@ -548,6 +547,7 @@ function actualizarSesion(user) {
         `;
         contadorFanfics.textContent = '';
     } else {
+        cambiarVistaAuth('register');
         state.fanfics = [];
         state.currentPage = 1;
         state.adminFanfics = [];
@@ -569,6 +569,16 @@ function actualizarSesion(user) {
         adminEstado.textContent = '';
         contadorFanfics.textContent = '';
     }
+}
+
+function cambiarVistaAuth(view) {
+    const showingRegister = view === 'register';
+    registerCard.classList.toggle('hidden', !showingRegister);
+    loginCard.classList.toggle('hidden', showingRegister);
+    showRegisterButton.classList.toggle('is-active', showingRegister);
+    showLoginButton.classList.toggle('is-active', !showingRegister);
+    showRegisterButton.setAttribute('aria-selected', String(showingRegister));
+    showLoginButton.setAttribute('aria-selected', String(!showingRegister));
 }
 
 function renderPaginaBiblioteca() {

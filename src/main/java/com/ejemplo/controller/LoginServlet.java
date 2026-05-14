@@ -1,16 +1,15 @@
 package com.ejemplo.controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ejemplo.model.LoginUserModel;
 import com.ejemplo.model.User;
-import com.ejemplo.model.UserDAO;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
-import com.ejemplo.util.PasswordUtil;
+import com.ejemplo.util.JsonRequestUtil;
 import com.ejemplo.util.SessionUtil;
 import com.google.gson.Gson;
 
@@ -24,7 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class LoginServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final UserDAO userDAO = new UserDAO();
+    private final LoginUserModel loginUserModel = new LoginUserModel();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -36,16 +35,9 @@ public class LoginServlet extends HttpServlet {
         try {
             schemaInitializer.ensureSchema();
 
-            Map<String, Object> datos = leerJson(request);
-            String identifier = obtenerTexto(datos, "identifier").toLowerCase();
-            String password = obtenerTexto(datos, "password");
-
-            if (identifier.isBlank() || password.isBlank()) {
-                throw new IllegalArgumentException("Completa usuario/email y contraseña");
-            }
-
-            User user = userDAO.buscarPorIdentifier(identifier);
-            if (user == null || !PasswordUtil.verifyPassword(password, user.getPasswordHash())) {
+            Map<String, Object> datos = JsonRequestUtil.leerJson(request, gson);
+            User user = loginUserModel.autenticar(datos);
+            if (user == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write(gson.toJson(crearError("Credenciales incorrectas")));
                 return;
@@ -66,25 +58,6 @@ public class LoginServlet extends HttpServlet {
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
             response.getWriter().write(gson.toJson(error));
         }
-    }
-
-    private Map<String, Object> leerJson(HttpServletRequest request) throws IOException {
-        StringBuilder json = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String linea;
-
-        while ((linea = reader.readLine()) != null) {
-            json.append(linea);
-        }
-
-        return gson.fromJson(json.toString(), Map.class);
-    }
-
-    private String obtenerTexto(Map<String, Object> datos, String clave) {
-        if (datos == null || datos.get(clave) == null) {
-            return "";
-        }
-        return String.valueOf(datos.get(clave)).trim();
     }
 
     private Map<String, Object> crearError(String mensaje) {

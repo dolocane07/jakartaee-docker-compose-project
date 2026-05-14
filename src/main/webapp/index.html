@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/estilos.css?v=16">
-    <script src="/js/app.js?v=14" defer></script>
+    <link rel="stylesheet" href="/css/estilos.css?v=19">
+    <script src="/js/app.js?v=18" defer></script>
 </head>
 <body>
     <div class="page-glow page-glow--left"></div>
@@ -26,52 +26,15 @@
             <div id="authStatus" class="topbar__session"></div>
         </nav>
 
-        <section class="hero shell" id="heroSection">
-            <div class="hero-copy">
-                <h1>Guarda tus fanfics por cuenta y organizalos como una biblioteca de verdad</h1>
-                <p class="intro">
-                    Cada persona tiene su propia cuenta, su propio archivo y sus propias estadisticas.
-                    Importa desde AO3, edita tus estrellas y la fecha final, despliega todos los datos
-                    de cada fanfic y limpia tu biblioteca cuando quieras.
-                </p>
-
-                <div class="hero-highlights">
-                    <article class="highlight-card">
-                        <p class="highlight-card__label">Cuenta propia</p>
-                        <p class="highlight-card__text">Registro e inicio de sesion para que cada biblioteca sea privada.</p>
-                    </article>
-                    <article class="highlight-card">
-                        <p class="highlight-card__label">Detalle deslizable</p>
-                        <p class="highlight-card__text">Abre cada ficha para ver tags, rating, fecha y acciones de edición.</p>
-                    </article>
-                    <article class="highlight-card">
-                        <p class="highlight-card__label">Edicion rapida</p>
-                        <p class="highlight-card__text">Cambia tus estrellas, la fecha de finalizacion o borra entradas sin salir de la tarjeta.</p>
-                    </article>
-                </div>
-            </div>
-
-            <aside class="hero-note">
-                <p class="hero-note__title">Quick rules</p>
-                <ul>
-                    <li>Works publicos de AO3</li>
-                    <li>Cuenta obligatoria para guardar fanfics</li>
-                    <li>Estadisticas desbloqueadas a partir de 10 fanfics por cuenta</li>
-                </ul>
-            </aside>
-        </section>
-
         <section class="auth-shell shell" id="authSection">
-            <div class="auth-shell__heading">
-                <div>
-                    <p class="section-label">Cuenta</p>
-                    <h2>Inicia sesion o crea tu archivo</h2>
-                </div>
-                <p class="panel-copy">Tu biblioteca y tus estadisticas quedaran ligadas a tu cuenta.</p>
+
+            <div class="auth-switch" role="tablist" aria-label="Cambiar entre registro e inicio de sesion">
+                <button class="auth-switch__button is-active" type="button" id="showRegisterButton" data-auth-view="register" aria-selected="true">Crear cuenta</button>
+                <button class="auth-switch__button" type="button" id="showLoginButton" data-auth-view="login" aria-selected="false">Iniciar sesion</button>
             </div>
 
-            <div class="auth-grid">
-                <article class="auth-card">
+            <div class="auth-grid auth-grid--single">
+                <article class="auth-card" id="registerCard">
                     <p class="auth-card__eyebrow">Crear cuenta</p>
                     <h3>Registro</h3>
                     <form id="registerForm" class="auth-form">
@@ -91,7 +54,7 @@
                     </form>
                 </article>
 
-                <article class="auth-card">
+                <article class="auth-card hidden" id="loginCard">
                     <p class="auth-card__eyebrow">Volver a entrar</p>
                     <h3>Inicio de sesion</h3>
                     <form id="loginForm" class="auth-form">
@@ -108,7 +71,7 @@
                 </article>
             </div>
 
-                <div id="authEstado" class="estado estado--auth" role="status" aria-live="polite" aria-atomic="true"></div>
+            <div id="authEstado" class="estado estado--auth" role="status" aria-live="polite" aria-atomic="true"></div>
         </section>
 
         <div id="appSection" class="app-section hidden">

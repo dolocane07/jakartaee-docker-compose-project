@@ -1,17 +1,15 @@
 package com.ejemplo.controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.ejemplo.model.Fanfic;
-import com.ejemplo.model.FanficDAO;
-import com.ejemplo.service.Ao3ScraperService;
+import com.ejemplo.model.ImportarFanficModel;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
+import com.ejemplo.util.JsonRequestUtil;
 import com.ejemplo.util.SessionUtil;
 import com.google.gson.Gson;
 
@@ -25,8 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ImportarFanficServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final FanficDAO fanficDAO = new FanficDAO();
-    private final Ao3ScraperService ao3ScraperService = new Ao3ScraperService();
+    private final ImportarFanficModel importarFanficModel = new ImportarFanficModel();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -50,31 +47,8 @@ public class ImportarFanficServlet extends HttpServlet {
 
         try {
             schemaInitializer.ensureSchema();
-
-            StringBuilder jsonRecibido = new StringBuilder();
-            BufferedReader reader = request.getReader();
-            String linea;
-
-            while ((linea = reader.readLine()) != null) {
-                jsonRecibido.append(linea);
-            }
-
-            Map<String, Object> datos = gson.fromJson(jsonRecibido.toString(), Map.class);
-            String url = obtenerTexto(datos, "url");
-            String finishedDate = obtenerTexto(datos, "finishedDate");
-            int userStars = obtenerEntero(datos, "userStars");
-
-            validarEntrada(finishedDate, userStars);
-
-            Fanfic fanfic = ao3ScraperService.extraerFanfic(url);
-
-            if (fanficDAO.existePorUrl(userId, fanfic.getAo3Url())) {
-                throw new IllegalArgumentException("Ese fanfic ya esta guardado en tu cuenta");
-            }
-
-            fanfic.setFinishedDate(finishedDate);
-            fanfic.setUserStars(userStars);
-            fanficDAO.guardar(userId, fanfic);
+            Map<String, Object> datos = JsonRequestUtil.leerJson(request, gson);
+            Fanfic fanfic = importarFanficModel.importar(userId, datos);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
@@ -90,38 +64,6 @@ public class ImportarFanficServlet extends HttpServlet {
             Map<String, Object> error = crearError("No se pudo importar el fanfic");
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
             response.getWriter().write(gson.toJson(error));
-        }
-    }
-
-    private String obtenerTexto(Map<String, Object> datos, String clave) {
-        if (datos == null || datos.get(clave) == null) {
-            return "";
-        }
-        return String.valueOf(datos.get(clave)).trim();
-    }
-
-    private int obtenerEntero(Map<String, Object> datos, String clave) {
-        if (datos == null || datos.get(clave) == null) {
-            return 0;
-        }
-
-        Object valor = datos.get(clave);
-        if (valor instanceof Number numero) {
-            return numero.intValue();
-        }
-
-        return Integer.parseInt(String.valueOf(valor));
-    }
-
-    private void validarEntrada(String finishedDate, int userStars) {
-        if (finishedDate.isBlank()) {
-            throw new IllegalArgumentException("La fecha en que lo terminaste es obligatoria");
-        }
-
-        LocalDate.parse(finishedDate);
-
-        if (userStars < 1 || userStars > 5) {
-            throw new IllegalArgumentException("Las estrellas deben estar entre 1 y 5");
         }
     }
 

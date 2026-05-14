@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ejemplo.model.UserDAO;
+import com.ejemplo.model.AdminUsersModel;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
 import com.ejemplo.util.SessionUtil;
@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AdminUsersServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final UserDAO userDAO = new UserDAO();
+    private final AdminUsersModel adminUsersModel = new AdminUsersModel();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -35,11 +35,7 @@ public class AdminUsersServlet extends HttpServlet {
 
         try {
             schemaInitializer.ensureSchema();
-
-            Map<String, Object> respuesta = new HashMap<>();
-            respuesta.put("ok", true);
-            respuesta.put("users", userDAO.listarUsuariosConTotales());
-            response.getWriter().write(gson.toJson(respuesta));
+            response.getWriter().write(gson.toJson(adminUsersModel.listar()));
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             Map<String, Object> error = crearError("No se pudieron cargar los usuarios");

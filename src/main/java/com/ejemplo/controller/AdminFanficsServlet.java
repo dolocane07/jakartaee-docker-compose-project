@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ejemplo.model.FanficDAO;
+import com.ejemplo.model.AdminFanficsModel;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
 import com.ejemplo.util.SessionUtil;
@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AdminFanficsServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final FanficDAO fanficDAO = new FanficDAO();
+    private final AdminFanficsModel adminFanficsModel = new AdminFanficsModel();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -35,11 +35,7 @@ public class AdminFanficsServlet extends HttpServlet {
 
         try {
             schemaInitializer.ensureSchema();
-
-            Map<String, Object> respuesta = new HashMap<>();
-            respuesta.put("ok", true);
-            respuesta.put("fanfics", fanficDAO.listarTodosAdmin());
-            response.getWriter().write(gson.toJson(respuesta));
+            response.getWriter().write(gson.toJson(adminFanficsModel.listar()));
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             Map<String, Object> error = crearError("No se pudieron cargar las entradas del admin");

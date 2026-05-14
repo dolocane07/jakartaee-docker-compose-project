@@ -1,14 +1,14 @@
 package com.ejemplo.controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ejemplo.model.UserDAO;
+import com.ejemplo.model.AdminEliminarUsuarioModel;
 import com.ejemplo.service.SchemaInitializer;
 import com.ejemplo.util.ErrorUtil;
+import com.ejemplo.util.JsonRequestUtil;
 import com.ejemplo.util.SessionUtil;
 import com.google.gson.Gson;
 
@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AdminEliminarUsuarioServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
-    private final UserDAO userDAO = new UserDAO();
+    private final AdminEliminarUsuarioModel adminEliminarUsuarioModel = new AdminEliminarUsuarioModel();
     private final SchemaInitializer schemaInitializer = new SchemaInitializer();
 
     @Override
@@ -46,11 +46,8 @@ public class AdminEliminarUsuarioServlet extends HttpServlet {
 
         try {
             schemaInitializer.ensureSchema();
-
-            Map<String, Object> datos = leerJson(request);
-            int userId = obtenerEntero(datos, "userId");
-
-            userDAO.eliminarCuentaComoAdmin(userId, adminUserId);
+            Map<String, Object> datos = JsonRequestUtil.leerJson(request, gson);
+            adminEliminarUsuarioModel.eliminar(adminUserId, datos);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ok", true);
@@ -65,30 +62,6 @@ public class AdminEliminarUsuarioServlet extends HttpServlet {
             error.put("detalle", ErrorUtil.getRootCauseMessage(e));
             response.getWriter().write(gson.toJson(error));
         }
-    }
-
-    private Map<String, Object> leerJson(HttpServletRequest request) throws IOException {
-        StringBuilder json = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String linea;
-
-        while ((linea = reader.readLine()) != null) {
-            json.append(linea);
-        }
-
-        return gson.fromJson(json.toString(), Map.class);
-    }
-
-    private int obtenerEntero(Map<String, Object> datos, String clave) {
-        if (datos == null || datos.get(clave) == null) {
-            return 0;
-        }
-
-        Object valor = datos.get(clave);
-        if (valor instanceof Number numero) {
-            return numero.intValue();
-        }
-        return Integer.parseInt(String.valueOf(valor));
     }
 
     private Map<String, Object> crearError(String mensaje) {
