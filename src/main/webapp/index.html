@@ -135,6 +135,23 @@
             <div id="authEstado" class="estado estado--auth" role="status" aria-live="polite" aria-atomic="true"></div>
         </section>
 
+        <section class="auth-shell shell hidden" id="accountSection">
+            <div class="auth-shell__heading">
+                <p class="archive-kicker">Tu cuenta</p>
+                <h2>Sesion activa</h2>
+                <p class="intro">
+                    Desde aqui puedes comprobar con que cuenta estas dentro y cerrar sesion cuando quieras.
+                </p>
+            </div>
+
+            <article class="auth-card account-card">
+                <p class="auth-card__eyebrow">Cuenta activa</p>
+                <h3 id="accountName">Tu cuenta</h3>
+                <p id="accountMeta" class="panel-copy"></p>
+                <button class="boton-ghost" type="button" data-action="logout">Cerrar sesion</button>
+            </article>
+        </section>
+
         <div id="appSection" class="app-section hidden">
             <section class="panel shell" id="importar">
                 <div class="panel-heading">
@@ -284,7 +301,6 @@
             </div>
             <div class="footer__meta">
                 <p class="footer__text">Necesitas una cuenta para guardar datos o consultar tu historial.</p>
-                <button class="boton-ghost boton-ghost--small" type="button" data-action="open-auth-register">Ir a mi cuenta</button>
             </div>
         </footer>
     </main>

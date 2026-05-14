@@ -27,6 +27,7 @@ const adminSelectedActions = document.getElementById('adminSelectedActions');
 const adminEstado = document.getElementById('adminEstado');
 const authStatus = document.getElementById('authStatus');
 const authSection = document.getElementById('authSection');
+const accountSection = document.getElementById('accountSection');
 const appSection = document.getElementById('appSection');
 const authEstado = document.getElementById('authEstado');
 const importSection = document.getElementById('importar');
@@ -38,6 +39,8 @@ const registerCard = document.getElementById('registerCard');
 const loginCard = document.getElementById('loginCard');
 const showRegisterButton = document.getElementById('showRegisterButton');
 const showLoginButton = document.getElementById('showLoginButton');
+const accountName = document.getElementById('accountName');
+const accountMeta = document.getElementById('accountMeta');
 
 registerForm.addEventListener('submit', manejarRegistro);
 loginForm.addEventListener('submit', manejarLogin);
@@ -135,6 +138,12 @@ function manejarLogin(evento) {
 }
 
 function manejarAccionesSesion(evento) {
+    const accountButton = evento.target.closest('[data-action="open-account"]');
+    if (accountButton) {
+        abrirCuentaOPerfil();
+        return;
+    }
+
     const openRegisterButton = evento.target.closest('[data-action="open-auth-register"]');
     if (openRegisterButton) {
         abrirCuenta('register');
@@ -163,6 +172,15 @@ function manejarAccionesSesion(evento) {
 function abrirCuenta(view) {
     cambiarVistaAuth(view);
     authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function abrirCuentaOPerfil() {
+    if (state.user) {
+        accountSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+
+    abrirCuenta('register');
 }
 
 function guardarFanfic(evento) {
@@ -549,6 +567,7 @@ function actualizarSesion(user) {
     state.user = user;
     appSection.classList.toggle('hidden', !user);
     authSection.classList.toggle('hidden', Boolean(user));
+    accountSection.classList.toggle('hidden', !user);
     adminSection.classList.toggle('hidden', !user || !user.isAdmin);
     importSection.classList.toggle('hidden', !user || user.isAdmin);
     bibliotecaSection.classList.toggle('hidden', !user || user.isAdmin);
@@ -556,12 +575,10 @@ function actualizarSesion(user) {
 
     if (user) {
         authStatus.innerHTML = `
-            <div class="session-pill">
-                <span class="session-pill__label">Conectada como</span>
-                <strong>${escapeHtml(user.username)}${user.isAdmin ? ' · Admin' : ''}</strong>
-            </div>
-            <button class="boton-ghost" type="button" data-action="logout">Cerrar sesion</button>
+            <button class="account-button" type="button" data-action="open-account">Cuenta</button>
         `;
+        accountName.textContent = user.username;
+        accountMeta.textContent = user.isAdmin ? 'Cuenta administradora activa.' : 'Cuenta personal activa.';
         contadorFanfics.textContent = '';
     } else {
         cambiarVistaAuth('register');
@@ -571,11 +588,10 @@ function actualizarSesion(user) {
         state.adminUsersData = [];
         state.selectedAdminUserId = null;
         authStatus.innerHTML = `
-            <button class="account-button" type="button" data-action="open-auth-register">
-                <span class="session-pill__label">Cuenta</span>
-                <strong>Conectada como invitada</strong>
-            </button>
+            <button class="account-button" type="button" data-action="open-account">Cuenta</button>
         `;
+        accountName.textContent = 'Tu cuenta';
+        accountMeta.textContent = '';
         listaFanfics.innerHTML = '';
         paginacionFanfics.innerHTML = '';
         stats.innerHTML = '';
