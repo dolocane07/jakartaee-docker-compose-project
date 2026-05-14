@@ -190,6 +190,31 @@ function mostrarVista(view) {
     homeSection.classList.toggle('hidden', resolvedView !== 'home');
     authSection.classList.toggle('hidden', resolvedView !== 'auth');
     appSection.classList.toggle('hidden', resolvedView !== 'app' || !state.user);
+    renderAuthStatus();
+}
+
+function renderAuthStatus() {
+    if (state.user) {
+        authStatus.innerHTML = `
+            <div class="session-pill">
+                <span class="session-pill__label">Conectada como</span>
+                <strong>${escapeHtml(state.user.username)}${state.user.isAdmin ? ' · Admin' : ''}</strong>
+            </div>
+            <button class="boton-ghost boton-ghost--session" type="button" data-action="logout">Cerrar sesion</button>
+        `;
+        return;
+    }
+
+    if (state.currentView === 'auth') {
+        authStatus.innerHTML = `
+            <button class="account-button" type="button" data-action="open-home">Volver al inicio</button>
+        `;
+        return;
+    }
+
+    authStatus.innerHTML = `
+        <button class="account-button" type="button" data-action="open-auth-register">Cuenta</button>
+    `;
 }
 
 function guardarFanfic(evento) {
@@ -580,13 +605,6 @@ function actualizarSesion(user) {
     estadisticasSection.classList.toggle('hidden', !user || user.isAdmin);
 
     if (user) {
-        authStatus.innerHTML = `
-            <div class="session-pill">
-                <span class="session-pill__label">Conectada como</span>
-                <strong>${escapeHtml(user.username)}${user.isAdmin ? ' · Admin' : ''}</strong>
-            </div>
-            <button class="boton-ghost boton-ghost--session" type="button" data-action="logout">Cerrar sesion</button>
-        `;
         contadorFanfics.textContent = '';
         mostrarVista('app');
     } else {
@@ -596,9 +614,6 @@ function actualizarSesion(user) {
         state.adminFanfics = [];
         state.adminUsersData = [];
         state.selectedAdminUserId = null;
-        authStatus.innerHTML = `
-            <button class="account-button" type="button" data-action="open-auth-register">Cuenta</button>
-        `;
         listaFanfics.innerHTML = '';
         paginacionFanfics.innerHTML = '';
         stats.innerHTML = '';
