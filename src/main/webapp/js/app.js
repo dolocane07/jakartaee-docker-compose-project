@@ -42,7 +42,6 @@ const loginCard = document.getElementById('loginCard');
 const showRegisterButton = document.getElementById('showRegisterButton');
 const showLoginButton = document.getElementById('showLoginButton');
 const accountName = document.getElementById('accountName');
-const accountMeta = document.getElementById('accountMeta');
 
 registerForm.addEventListener('submit', manejarRegistro);
 loginForm.addEventListener('submit', manejarLogin);
@@ -55,6 +54,7 @@ paginacionFanfics.addEventListener('click', manejarPaginacionBiblioteca);
 adminUsers.addEventListener('click', manejarClickUsuariosAdmin);
 adminFanfics.addEventListener('click', manejarClicksAdmin);
 authStatus.addEventListener('click', manejarAccionesSesion);
+accountSection.addEventListener('click', manejarAccionesSesion);
 showRegisterButton.addEventListener('click', () => cambiarVistaAuth('register'));
 showLoginButton.addEventListener('click', () => cambiarVistaAuth('login'));
 
@@ -602,8 +602,7 @@ function actualizarSesion(user) {
         authStatus.innerHTML = `
             <button class="account-button" type="button" data-action="open-account">Cuenta</button>
         `;
-        accountName.textContent = user.username;
-        accountMeta.textContent = user.isAdmin ? 'Cuenta administradora activa.' : 'Cuenta personal activa.';
+        accountName.textContent = `${user.username}${user.isAdmin ? ' · Admin' : ''}`;
         contadorFanfics.textContent = '';
         mostrarVista('app');
     } else {
@@ -617,7 +616,6 @@ function actualizarSesion(user) {
             <button class="account-button" type="button" data-action="open-account">Cuenta</button>
         `;
         accountName.textContent = 'Tu cuenta';
-        accountMeta.textContent = '';
         listaFanfics.innerHTML = '';
         paginacionFanfics.innerHTML = '';
         stats.innerHTML = '';

@@ -461,12 +461,20 @@ body::before {
     margin-bottom: 0.75rem;
 }
 
-.account-card {
+.account-bar {
     width: 100%;
     max-width: 34rem;
-    display: grid;
+    margin: 0 auto;
+    padding: 1.125rem;
+    border-radius: 1.375rem;
+    background: rgba(24, 23, 38, 0.62);
+    border: 0.0625rem solid rgba(144, 140, 170, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 0.875rem;
-    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .auth-form,
@@ -1100,6 +1108,11 @@ select:focus-visible {
     .topbar__session,
     .footer__meta {
         width: 100%;
+    }
+
+    .account-bar {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .footer__meta {
