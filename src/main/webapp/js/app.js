@@ -135,6 +135,18 @@ function manejarLogin(evento) {
 }
 
 function manejarAccionesSesion(evento) {
+    const openRegisterButton = evento.target.closest('[data-action="open-auth-register"]');
+    if (openRegisterButton) {
+        abrirCuenta('register');
+        return;
+    }
+
+    const openLoginButton = evento.target.closest('[data-action="open-auth-login"]');
+    if (openLoginButton) {
+        abrirCuenta('login');
+        return;
+    }
+
     const boton = evento.target.closest('[data-action="logout"]');
     if (!boton) {
         return;
@@ -146,6 +158,11 @@ function manejarAccionesSesion(evento) {
             estado.textContent = '';
             authEstado.textContent = 'Sesion cerrada.';
         });
+}
+
+function abrirCuenta(view) {
+    cambiarVistaAuth(view);
+    authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function guardarFanfic(evento) {
@@ -554,10 +571,10 @@ function actualizarSesion(user) {
         state.adminUsersData = [];
         state.selectedAdminUserId = null;
         authStatus.innerHTML = `
-            <div class="session-pill">
-                <span class="session-pill__label">Estado</span>
-                <strong>Invitada</strong>
-            </div>
+            <button class="account-button" type="button" data-action="open-auth-register">
+                <span class="session-pill__label">Cuenta</span>
+                <strong>Conectada como invitada</strong>
+            </button>
         `;
         listaFanfics.innerHTML = '';
         paginacionFanfics.innerHTML = '';
@@ -580,6 +597,15 @@ function cambiarVistaAuth(view) {
     showRegisterButton.setAttribute('aria-selected', String(showingRegister));
     showLoginButton.setAttribute('aria-selected', String(!showingRegister));
 }
+
+document.addEventListener('click', evento => {
+    const button = evento.target.closest('[data-action="open-auth-register"], [data-action="open-auth-login"]');
+    if (!button || authStatus.contains(button)) {
+        return;
+    }
+
+    abrirCuenta(button.dataset.action === 'open-auth-login' ? 'login' : 'register');
+});
 
 function renderPaginaBiblioteca() {
     const start = (state.currentPage - 1) * state.fanficsPerPage;

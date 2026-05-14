@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/estilos.css?v=19">
-    <script src="/js/app.js?v=18" defer></script>
+    <link rel="stylesheet" href="/css/estilos.css?v=20">
+    <script src="/js/app.js?v=19" defer></script>
 </head>
 <body>
     <div class="page-glow page-glow--left"></div>
@@ -26,7 +26,68 @@
             <div id="authStatus" class="topbar__session"></div>
         </nav>
 
+        <section class="hero shell" id="inicio">
+            <div class="hero__content">
+                <div class="hero__copy">
+                    <p class="archive-kicker">Lectura, archivo y estadisticas</p>
+                    <h1>Guarda tus fanfics de AO3 en una biblioteca privada y ordenada</h1>
+                    <p class="intro">
+                        Esta pagina te permite importar un fanfic desde AO3, guardar tu fecha de lectura, ponerle
+                        estrellas y consultar patrones de lectura cuando tu biblioteca crece. Cada cuenta mantiene sus
+                        propias entradas por separado.
+                    </p>
+                    <div class="hero__actions">
+                        <button class="boton-principal" type="button" data-action="open-auth-register">Crear cuenta</button>
+                        <button class="boton-ghost" type="button" data-action="open-auth-login">Ya tengo cuenta</button>
+                    </div>
+                </div>
+
+                <aside class="hero__panel">
+                    <p class="hero__panel-eyebrow">Como funciona</p>
+                    <ol class="hero__steps">
+                        <li>
+                            <strong>1. Crea tu cuenta</strong>
+                            <span>Tu biblioteca queda asociada a tu usuario y no se mezcla con la de otras personas.</span>
+                        </li>
+                        <li>
+                            <strong>2. Importa o guarda manualmente</strong>
+                            <span>Pega una URL publica de AO3 o usa el modo manual si el scraping falla.</span>
+                        </li>
+                        <li>
+                            <strong>3. Consulta tu archivo</strong>
+                            <span>Edita fechas, cambia estrellas, borra entradas y desbloquea estadisticas al llegar a 10 fanfics.</span>
+                        </li>
+                    </ol>
+                </aside>
+            </div>
+
+            <div class="hero__highlights">
+                <article class="highlight-card">
+                    <p class="auth-card__eyebrow">Importacion</p>
+                    <h3>AO3 o modo manual</h3>
+                    <p class="panel-copy">La app intenta recoger metadatos del work y, si no puede, te deja completar la ficha a mano.</p>
+                </article>
+                <article class="highlight-card">
+                    <p class="auth-card__eyebrow">Biblioteca</p>
+                    <h3>Edicion simple</h3>
+                    <p class="panel-copy">Cada entrada se puede revalorar, cambiar de fecha o borrar sin salir de la misma tarjeta.</p>
+                </article>
+                <article class="highlight-card">
+                    <p class="auth-card__eyebrow">Estadisticas</p>
+                    <h3>Patrones de lectura</h3>
+                    <p class="panel-copy">Top fandoms, relaciones, warnings, ratings y media de palabras cuando ya tengas historial.</p>
+                </article>
+            </div>
+        </section>
+
         <section class="auth-shell shell" id="authSection">
+            <div class="auth-shell__heading">
+                <p class="archive-kicker">Cuenta</p>
+                <h2>Entra para usar tu biblioteca</h2>
+                <p class="intro">
+                    Desde aqui puedes crear una cuenta nueva o iniciar sesion para acceder a tus fanfics guardados.
+                </p>
+            </div>
 
             <div class="auth-switch" role="tablist" aria-label="Cambiar entre registro e inicio de sesion">
                 <button class="auth-switch__button is-active" type="button" id="showRegisterButton" data-auth-view="register" aria-selected="true">Crear cuenta</button>
@@ -212,8 +273,20 @@
                 <div id="adminEstado" class="estado" role="status" aria-live="polite" aria-atomic="true"></div>
             </section>
         </div>
-    </main>
 
-    
+        <footer class="footer shell">
+            <div>
+                <p class="archive-kicker">AO3 Fanfic Tracker</p>
+                <h2 class="footer__title">Tu archivo personal de lectura fanfic</h2>
+                <p class="footer__text">
+                    Importa, ordena y revisa tus lecturas sin salir de una sola biblioteca.
+                </p>
+            </div>
+            <div class="footer__meta">
+                <p class="footer__text">Necesitas una cuenta para guardar datos o consultar tu historial.</p>
+                <button class="boton-ghost boton-ghost--small" type="button" data-action="open-auth-register">Ir a mi cuenta</button>
+            </div>
+        </footer>
+    </main>
 </body>
 </html>
