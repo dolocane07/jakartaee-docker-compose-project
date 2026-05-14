@@ -16,13 +16,13 @@
 
     <main class="layout">
         <nav class="topbar shell">
-            <div class="topbar__brand">
+            <button class="topbar__brand topbar__brand-button" type="button" data-action="open-home">
                 <span class="topbar__dot"></span>
                 <div>
                     <p class="eyebrow">AO3 Fanfic Tracker</p>
                     <p class="topbar__sub">Tu archivo personal de lectura fanfic</p>
                 </div>
-            </div>
+            </button>
             <div id="authStatus" class="topbar__session"></div>
         </nav>
 
@@ -87,6 +87,7 @@
                 <p class="intro">
                     Desde aqui puedes crear una cuenta nueva o iniciar sesion para acceder a tus fanfics guardados.
                 </p>
+                <button class="boton-ghost boton-ghost--small" type="button" data-action="open-home">Volver al inicio</button>
             </div>
 
             <div class="auth-switch" role="tablist" aria-label="Cambiar entre registro e inicio de sesion">
@@ -148,6 +149,7 @@
                 <p class="auth-card__eyebrow">Cuenta activa</p>
                 <h3 id="accountName">Tu cuenta</h3>
                 <p id="accountMeta" class="panel-copy"></p>
+                <button class="boton-principal" type="button" data-action="open-app">Ir a la biblioteca</button>
                 <button class="boton-ghost" type="button" data-action="logout">Cerrar sesion</button>
             </article>
         </section>

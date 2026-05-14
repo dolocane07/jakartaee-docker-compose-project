@@ -129,6 +129,16 @@ body::before {
     z-index: 1;
 }
 
+.topbar__brand-button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+}
+
 .topbar__dot {
     width: 0.75rem;
     height: 0.75rem;

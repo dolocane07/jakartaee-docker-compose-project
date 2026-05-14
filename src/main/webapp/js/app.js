@@ -1,5 +1,6 @@
 const state = {
     user: null,
+    currentView: 'home',
     fanfics: [],
     currentPage: 1,
     fanficsPerPage: 5,
@@ -8,6 +9,7 @@ const state = {
     selectedAdminUserId: null
 };
 
+const homeSection = document.getElementById('inicio');
 const formFanfic = document.getElementById('formFanfic');
 const manualForm = document.getElementById('manualForm');
 const toggleManualImport = document.getElementById('toggleManualImport');
@@ -60,6 +62,7 @@ function init() {
     finishedDateInput.valueAsDate = new Date();
     userStarsInput.value = '5';
     cambiarVistaAuth('register');
+    mostrarVista('home');
     return cargarSesion();
 }
 
@@ -138,6 +141,18 @@ function manejarLogin(evento) {
 }
 
 function manejarAccionesSesion(evento) {
+    const homeButton = evento.target.closest('[data-action="open-home"]');
+    if (homeButton) {
+        mostrarVista(state.user ? 'app' : 'home');
+        return;
+    }
+
+    const appButton = evento.target.closest('[data-action="open-app"]');
+    if (appButton) {
+        mostrarVista('app');
+        return;
+    }
+
     const accountButton = evento.target.closest('[data-action="open-account"]');
     if (accountButton) {
         abrirCuentaOPerfil();
@@ -171,16 +186,29 @@ function manejarAccionesSesion(evento) {
 
 function abrirCuenta(view) {
     cambiarVistaAuth(view);
-    authSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    mostrarVista('auth');
 }
 
 function abrirCuentaOPerfil() {
     if (state.user) {
-        accountSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        mostrarVista('account');
         return;
     }
 
     abrirCuenta('register');
+}
+
+function mostrarVista(view) {
+    const resolvedView = state.user
+        ? (view === 'home' || view === 'auth' ? 'app' : view)
+        : (view === 'account' || view === 'app' ? 'home' : view);
+
+    state.currentView = resolvedView;
+
+    homeSection.classList.toggle('hidden', resolvedView !== 'home');
+    authSection.classList.toggle('hidden', resolvedView !== 'auth');
+    accountSection.classList.toggle('hidden', resolvedView !== 'account' || !state.user);
+    appSection.classList.toggle('hidden', resolvedView !== 'app' || !state.user);
 }
 
 function guardarFanfic(evento) {
@@ -565,9 +593,6 @@ function borrarUsuarioComoAdmin(userId) {
 
 function actualizarSesion(user) {
     state.user = user;
-    appSection.classList.toggle('hidden', !user);
-    authSection.classList.toggle('hidden', Boolean(user));
-    accountSection.classList.toggle('hidden', !user);
     adminSection.classList.toggle('hidden', !user || !user.isAdmin);
     importSection.classList.toggle('hidden', !user || user.isAdmin);
     bibliotecaSection.classList.toggle('hidden', !user || user.isAdmin);
@@ -580,6 +605,7 @@ function actualizarSesion(user) {
         accountName.textContent = user.username;
         accountMeta.textContent = user.isAdmin ? 'Cuenta administradora activa.' : 'Cuenta personal activa.';
         contadorFanfics.textContent = '';
+        mostrarVista('app');
     } else {
         cambiarVistaAuth('register');
         state.fanfics = [];
@@ -601,6 +627,7 @@ function actualizarSesion(user) {
         adminSelectedActions.innerHTML = '';
         adminEstado.textContent = '';
         contadorFanfics.textContent = '';
+        mostrarVista('home');
     }
 }
 
@@ -615,8 +642,20 @@ function cambiarVistaAuth(view) {
 }
 
 document.addEventListener('click', evento => {
-    const button = evento.target.closest('[data-action="open-auth-register"], [data-action="open-auth-login"]');
+    const button = evento.target.closest(
+        '[data-action="open-auth-register"], [data-action="open-auth-login"], [data-action="open-home"], [data-action="open-app"]'
+    );
     if (!button || authStatus.contains(button)) {
+        return;
+    }
+
+    if (button.dataset.action === 'open-home') {
+        mostrarVista(state.user ? 'app' : 'home');
+        return;
+    }
+
+    if (button.dataset.action === 'open-app') {
+        mostrarVista('app');
         return;
     }
 
