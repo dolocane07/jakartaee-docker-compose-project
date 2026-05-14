@@ -461,22 +461,6 @@ body::before {
     margin-bottom: 0.75rem;
 }
 
-.account-bar {
-    width: 100%;
-    max-width: 34rem;
-    margin: 0 auto;
-    padding: 1.125rem;
-    border-radius: 1.375rem;
-    background: rgba(24, 23, 38, 0.62);
-    border: 0.0625rem solid rgba(144, 140, 170, 0.18);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.875rem;
-    position: relative;
-    z-index: 1;
-}
-
 .auth-form,
 .edit-form {
     display: grid;
@@ -586,6 +570,10 @@ select:focus-visible {
     padding: 0.625rem 0.875rem;
     font-size: 0.9rem;
     border-radius: 0.875rem;
+}
+
+.boton-ghost--session {
+    min-width: 12rem;
 }
 
 .boton-ghost--icon {
@@ -1108,11 +1096,6 @@ select:focus-visible {
     .topbar__session,
     .footer__meta {
         width: 100%;
-    }
-
-    .account-bar {
-        flex-direction: column;
-        align-items: stretch;
     }
 
     .footer__meta {
